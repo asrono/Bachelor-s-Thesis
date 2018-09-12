@@ -1,0 +1,146 @@
+%% SMS
+close all; clear all;
+%% Input parameters
+% Etendue
+U = 1; % [m^2]
+% U < 2*[E_1,E_2] ( = 4 [m])
+
+% Refraction of index lens
+n = 1.59;
+
+% angles for starting parabola
+phi_E_start = 180;    % [degrees]
+phi_E_end   = 360;      % [degrees]
+phi_R_start = 0;        % [degrees]
+phi_R_end   = 180;     % [degrees]
+phi_1       = 286;    % [degrees]
+phi_2       = 66;     % [degrees]
+n_phi       = 1e5;      % #points to plot
+
+% Define emitter (E) and receiver (R) plane
+E_1 = [0;-2];       % [m]
+E_2 = [0; 2];       % [m]
+
+l_OA = 20;          % [m]
+R_1  = [l_OA; -1];  % [m]
+R_2  = [l_OA;  1];  % [m]
+
+%% Input handling
+% Degrees to radians
+phi_E_start = phi_E_start * pi/180;
+phi_E_end   = phi_E_end   * pi/180;
+phi_R_start = phi_R_start * pi/180;
+phi_R_end   = phi_R_end   * pi/180;
+
+phi_1   = phi_1   * pi/180;
+phi_2   = phi_2   * pi/180;
+
+phi_E = linspace(phi_E_start, phi_E_end, n_phi);
+phi_R = linspace(phi_R_start, phi_R_end, n_phi);
+
+%% SMS Method
+%% Step 1
+h_E = hyp(U,E_1,E_2,phi_E);
+h_R = hyp(U,R_1,R_2,phi_R);
+N   = hyp(U,E_1,E_2,phi_1);
+X   = hyp(U,R_1,R_2,phi_2);
+
+%% Step 2
+n_N = find_normal(E_1,N,X,n,1);
+n_X = find_normal(R_1,N,X,n,-1);
+%% Step 3
+v_i = (N-E_2)/norm(N-E_2);
+vec_n = n_N;
+v_r = n*v_i + vec_n*( -n*(dot(v_i,vec_n) + 1 - n^2*(1-dot(v_i,vec_n)^2)) );
+
+
+S = n*norm(N-X)+norm(X-R_1);
+C_1 = n*S + dot(N-R_1,v_r);
+C_2 = S^2-norm(N-R_1)^2;
+
+X_1 = N + v_r*(C_1 - sqrt(C_2*(1-n^2)+C_1^2))/(n^2-1);
+disp(X_1)
+%% Plotting
+figure(1); % Step 1 and 2
+% Plot transmitter and receiver planes
+plot(E_1(1),E_1(2),'ro'); hold on
+plot(E_2(1),E_2(2),'ro');
+plot(R_1(1),R_1(2),'go');
+plot(R_2(1),R_2(2),'go');
+
+% Plot hyperbolas
+plot(h_E(1,:), h_E(2,:),'.k');
+plot(h_R(1,:), h_R(2,:),'.b');
+
+% Plot N and X
+plot(N(1),N(2),'ok')
+plot(X(1),X(2),'ob')
+
+plot(X_1(1),X_1(2),'ob')
+% Plot normals
+q_n_N = quiver(N(1),N(2),n_N(1),n_N(2));
+q_n_X = quiver(X(1),X(2),n_X(1),n_X(2));
+
+quiver(N(1),N(2),v_i(1), v_i(2),'g')
+quiver(N(1),N(2),v_r(1), v_r(2))
+
+q_n_N.Color = 'black';
+q_n_X.Color = 'blue';
+q_n_N.LineWidth = 2;
+q_n_X.LineWidth = 2;
+q_n_N.MaxHeadSize = 0.8;
+q_n_X.MaxHeadSize = 0.8;
+
+% Plot optical axis and initial ray
+plot([0 l_OA],[0 0],'k--')
+
+plot([E_1(1) N(1) X(1) R_1(1)],[E_1(2) N(2) X(2) R_1(2)],'k')
+plot([E_2(1) N(1)],[E_2(2) N(2)],'g')
+
+% Set graph options
+title('Step 1 and 2')
+xlim([0 l_OA])
+ylim([-2 6])
+xlabel('Optical axis [m]')
+ylabel('y [m]')
+hold off
+%% Functions
+function h = hyp(U,P_1,P_2,phi)
+    alpha = angh(P_2-P_1);
+    h = P_1 + ( (U/2)^2  - norm(P_1-P_2)^2 ) ./ (U - 2 * norm(P_1-P_2) * cos(phi) ) .* [cos(phi+alpha); sin(phi+alpha)];
+end
+
+function a = ang(v,u)
+    a = acos(dot(v,u)/(norm(v)*norm(u)));
+end
+
+function a = angp(v,u)
+    if numel(v) ~= 2 || numel(u) ~= 2
+        error('Angle can only be determined in 2D')
+    end
+    
+    if u(1)*v(2)-u(2)*v(1) >= 0
+        a = ang(v,u);
+    else
+        a = 2*pi - ang(v,u);
+    end
+end
+
+function a = angh(v)
+    a = angp(v,[1 0]);
+end
+
+function normal = find_normal(P,N,X,n,right)
+    A = N - P;
+    B = (X - N) * right;
+    C = A/norm(A)-n*B/norm(B);
+    normal = C/norm(C);
+end
+
+function s = ispositive(A)
+    if A >= 0
+        s = 1;
+    else
+        s = -1;
+    end
+end
