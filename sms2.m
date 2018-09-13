@@ -11,12 +11,12 @@ U = 1; % [m^2]
 n = 1.6;
 
 % angles for starting parabola
-phi_E_start = 180;    % [degrees]
+phi_E_start = 180;      % [degrees]
 phi_E_end   = 360;      % [degrees]
 phi_R_start = 0;        % [degrees]
-phi_R_end   = 180;     % [degrees]
+phi_R_end   = 180;      % [degrees]
 phi_1       = 285.8;    % [degrees]
-phi_2       = 67;     % [degrees]
+phi_2       = 67;       % [degrees]
 n_phi       = 1e5;      % #points to plot
 
 % Define emitter (E) and receiver (R) plane
@@ -50,16 +50,23 @@ X   = hyp(U,R_1,R_2,phi_2);
 %% Step 2
 n_N = find_normal(E_1,N,X,n,1);
 n_X = find_normal(R_1,N,X,n,-1);
-%% Step 3
+%% Step 3 (manually)
+
+% Find X_1
 v_i = (N-E_2)/norm(N-E_2);
 v_r = find_reflected_ray(v_i,1,n,n_N);
-
 S = n*norm(N-X)+norm(X-R_1);
 C_1 = n*S + dot(N-R_1,v_r);
 C_2 = S^2-norm(N-R_1)^2;
+X_1 =N + v_r*(C_1 - sqrt(C_2*(1-n^2)+C_1^2))/(n^2-1);
 
-X_1 = N + v_r*(C_1 - sqrt(C_2*(1-n^2)+C_1^2))/(n^2-1);
-disp(X_1)
+% Find N_1
+v_i = (X-R_2)/norm(X-R_2);
+v_r = find_reflected_ray(v_i,1,n,n_X);
+S = n*norm(N-X)+norm(N-E_1);
+C_1 = n*S + dot(X-E_1,v_r);
+C_2 = S^2-norm(X-E_1)^2;
+N_1 =X + v_r*(C_1 - sqrt(C_2*(1-n^2)+C_1^2))/(n^2-1);
 %% Plotting
 figure(1); % Step 1 and 2
 % Plot transmitter and receiver planes
@@ -77,6 +84,7 @@ plot(N(1),N(2),'ok')
 plot(X(1),X(2),'ob')
 
 plot(X_1(1),X_1(2),'ob')
+plot(N_1(1),N_1(2),'ob')
 
 % Plot starting normals
 q_n_N = quiver(N(1),N(2),n_N(1),n_N(2));
@@ -98,8 +106,10 @@ plot([0 l_OA],[0 0],'k--')
 
 % Plot rays
 if plotRays == true
-plot([E_1(1) N(1) X(1) R_1(1)],[E_1(2) N(2) X(2) R_1(2)],'k')
-plot([E_2(1) N(1) X_1(1) R_1(1)],[E_2(2) N(2) X_1(2) R_1(2)],'g')
+plot([E_1(1) N(1) X(1)   R_1(1)],[E_1(2) N(2) X(2)   R_1(2)],'k')
+plot([E_2(1) N(1) X_1(1) R_1(1)],[E_2(2) N(2) X_1(2) R_1(2)],'k')
+plot([R_2(1) X(1) N(1)   E_1(1)],[R_2(2) X(2) N(2)   E_1(2)],'k')
+plot([R_2(1) X(1) N_1(1) E_1(1)],[R_2(2) X(2) N_1(2) E_1(2)],'k')
 end
 
 % Set graph options
