@@ -48,25 +48,28 @@ N   = hyp(U,E_1,E_2,phi_1);
 X   = hyp(U,R_1,R_2,phi_2);
 
 %% Step 2
-n_N = find_normal(E_1,N,X,n,1);
-n_X = find_normal(R_1,N,X,n,-1);
+n_N = find_normal(E_1,N,X,n);
+n_X = find_normal(R_1,X,N,n);
 %% Step 3 (manually)
 
-% Find X_1
-v_i = (N-E_2)/norm(N-E_2);
-v_r = find_reflected_ray(v_i,1,n,n_N);
-S = n*norm(N-X)+norm(X-R_1);
-C_1 = n*S + dot(N-R_1,v_r);
-C_2 = S^2-norm(N-R_1)^2;
-X_1 =N + v_r*(C_1 - sqrt(C_2*(1-n^2)+C_1^2))/(n^2-1);
+% Find X_1 and N_1
+X_1 = SMSs3(E_2,N,X,R_1,n,n_N);
+N_1 = SMSs3(R_2,X,N,E_1,n,n_X);
 
-% Find N_1
-v_i = (X-R_2)/norm(X-R_2);
-v_r = find_reflected_ray(v_i,1,n,n_X);
-S = n*norm(N-X)+norm(N-E_1);
-C_1 = n*S + dot(X-E_1,v_r);
-C_2 = S^2-norm(X-E_1)^2;
-N_1 =X + v_r*(C_1 - sqrt(C_2*(1-n^2)+C_1^2))/(n^2-1);
+%% Step 4
+% Find X_2 and N_2
+n_N_1 = find_normal(E_1,N_1,X_1,n);
+X_2 = SMSs3(E_2,N_1,X_1,R_1,n,n_N_1);
+
+n_X_1 = find_normal(R_1,X_1,N_1,n);
+N_2 = SMSs3(R_2,X_1,N_1,E_1,n,n_X_1);
+
+% Find X_3 and N_3
+n_N_2 = find_normal(E_1,N_2,X_2,n);
+X_3 = SMSs3(E_2,N_2,X_2,R_2,n,n_N_2);
+
+n_X_2 = find_normal(R_1,X_2,N_2,n);
+N_3 = SMSs3(R_2,X_2,N_2,E_2,n,n_X_2);
 %% Plotting
 figure(1); % Step 1 and 2
 % Plot transmitter and receiver planes
@@ -86,6 +89,11 @@ plot(X(1),X(2),'ob')
 plot(X_1(1),X_1(2),'ob')
 plot(N_1(1),N_1(2),'ob')
 
+plot(X_2(1),X_2(2),'ob')
+plot(N_2(1),N_2(2),'ob')
+
+plot(X_3(1),X_2(2),'ob')
+plot(N_2(1),N_2(2),'ob')
 % Plot starting normals
 q_n_N = quiver(N(1),N(2),n_N(1),n_N(2));
 q_n_X = quiver(X(1),X(2),n_X(1),n_X(2));
@@ -97,19 +105,18 @@ q_n_X.LineWidth = 2;
 q_n_N.MaxHeadSize = 0.8;
 q_n_X.MaxHeadSize = 0.8;
 
-% % Plot incoming and reflected vectors (for testing)
-% quiver(N(1),N(2),v_i(1), v_i(2),'g')
-% quiver(N(1),N(2),v_r(1), v_r(2))
-
 % Plot optical axis
 plot([0 l_OA],[0 0],'k--')
 
 % Plot rays
 if plotRays == true
-plot([E_1(1) N(1) X(1)   R_1(1)],[E_1(2) N(2) X(2)   R_1(2)],'k')
-plot([E_2(1) N(1) X_1(1) R_1(1)],[E_2(2) N(2) X_1(2) R_1(2)],'k')
-plot([R_2(1) X(1) N(1)   E_1(1)],[R_2(2) X(2) N(2)   E_1(2)],'k')
-plot([R_2(1) X(1) N_1(1) E_1(1)],[R_2(2) X(2) N(2)   E_1(2)],'k')
+% Rays E_1
+c = 'k';
+plot_ray(E_1, N  , X  , R_1,c)
+plot_ray(E_1, N_1, X  , R_2,c)
+
+c = 'k';
+plot_ray(E_2, N  , X_1, R_1,c)
 end
 
 % Set graph options
@@ -120,6 +127,10 @@ xlabel('Optical axis [m]')
 ylabel('y [m]')
 hold off
 %% Functions
+function plot_ray(E,G,F,R,c)
+    plot([E(1) G(1) F(1) R(1)],[E(2) G(2) F(2) R(2)],c)
+end
+
 function h = hyp(U,P_1,P_2,phi)
     alpha = angh(P_2-P_1);
     h = P_1 + ( (U/2)^2  - norm(P_1-P_2)^2 ) ./ (U - 2 * norm(P_1-P_2) * cos(phi) ) .* [cos(phi+alpha); sin(phi+alpha)];
@@ -145,9 +156,9 @@ function a = angh(v)
     a = angp(v,[1 0]);
 end
 
-function normal = find_normal(P,N,X,n,right)
+function normal = find_normal(P,N,X,n)
     A = N - P;
-    B = (X - N) * right;
+    B = (X - N);
     C = A/norm(A)-n*B/norm(B);
     normal = C/norm(C);
 end
@@ -160,4 +171,17 @@ function v_r = find_reflected_ray(v_i,n_i,n_r,normal)
     n = n_i/n_r;
     v_r = n*v_i+(n*dot(normal,v_i)-sqrt(1-n^2*(1-dot(v_i,normal)))) * normal*c;
     v_r = v_r/norm(v_r);
+end
+
+function Q = find_new_point(G,F,P,v_r,n)
+    S = n*norm(G-F)+norm(F-P);
+    C_1 = n*S + dot(G-P,v_r);
+    C_2 = S^2-norm(G-P)^2;
+    Q   = G + v_r*(C_1 - sqrt(C_2*(1-n^2)+C_1^2))/(n^2-1);
+end
+
+function F_i = SMSs3(E,G,F,R,n,n_G)
+    v_i = (G-E)/norm(G-E);
+    v_r = find_reflected_ray(v_i,1,n,n_G);
+	F_i = find_new_point(G,F,R,v_r,n);  
 end
