@@ -19,7 +19,7 @@ phi_E_end   = 360;      % [degrees]
 phi_R_start = 0;        % [degrees]
 phi_R_end   = 180;      % [degrees]
 phi_1       = 285.5;    % [degrees]
-phi_2       = 67.5    ;       % [degrees]
+phi_2       = 67.5    ; % [degrees]
 n_phi       = 1e5;      % #points to plot
 
 % Define emitter (E) and receiver (R) plane
@@ -49,6 +49,7 @@ ER(:,:,1) = E_1;
 ER(:,:,2) = E_2;
 ER(:,:,3) = R_1;
 ER(:,:,4) = R_2;
+
 %% SMS Method
 %% Step 1
 h_E = hyp(U,E_1,E_2,phi_E);
@@ -152,6 +153,7 @@ ylim([-3 3])
 xlabel('Optical axis [m]')
 ylabel('y [m]')
 hold off
+
 %% Functions
 function plot_ray(E,G,F,R,c)
     plot([E(1) G(1) F(1) R(1)],[E(2) G(2) F(2) R(2)],c)
