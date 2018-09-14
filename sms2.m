@@ -41,6 +41,12 @@ phi_2   = phi_2   * pi/180;
 phi_E = linspace(phi_E_start, phi_E_end, n_phi);
 phi_R = linspace(phi_R_start, phi_R_end, n_phi);
 
+% Emitter and receiver plane
+ER = ones(1,2,4);
+ER(:,:,1) = E_1;
+ER(:,:,2) = E_2;
+ER(:,:,3) = R_1;
+ER(:,:,4) = R_2;
 %% SMS Method
 %% Step 1
 h_E = hyp(U,E_1,E_2,phi_E);
@@ -51,33 +57,20 @@ X   = hyp(U,R_1,R_2,phi_2);
 %% Step 2
 n_N = find_normal(E_1,N,X,n);
 n_X = find_normal(R_1,X,N,n);
-%% Step 3
 
+%% Step 3
 % Find X_1 and N_1
 X_1 = SMSs3(E_2,N,X,R_1,n,n_N);
 N_1 = SMSs3(R_2,X,N,E_1,n,n_X);
 
 %% Step 4 (manually)
-% Find X_2 and N_2
-n_N_1 = find_normal(E_1,N_1,X_1,n);
-X_2 = SMSs3(E_2,N_1,X_1,R_1,n,n_N_1);
+[X_2, N_2] = SMSs4_layer(ER,N_1,X_1,n);
+[X_3, N_3] = SMSs4_layer(ER,N_2,X_2,n);
+[X_4, N_4] = SMSs4_layer(ER,N_3,X_3,n);
+[X_5, N_5] = SMSs4_layer(ER,N_4,X_4,n);
+[X_6, N_6] = SMSs4_layer(ER,N_5,X_5,n);
+[X_7, N_7] = SMSs4_layer(ER,N_6,X_6,n);
 
-n_X_1 = find_normal(R_1,X_1,N_1,n);
-N_2 = SMSs3(R_2,X_1,N_1,E_1,n,n_X_1);
-
-% Find X_3 and N_3
-n_N_2 = find_normal(E_1,N_2,X_2,n);
-X_3 = SMSs3(E_2,N_2,X_2,R_1,n,n_N_2);
-
-n_X_2 = find_normal(R_1,X_2,N_2,n);
-N_3 = SMSs3(R_2,X_2,N_2,E_1,n,n_X_2);
-
-% Find X_4 and N_4
-n_N_3 = find_normal(E_1,N_3,X_3,n);
-X_4 = SMSs3(E_2,N_3,X_3,R_1,n,n_N_3);
-
-n_X_3 = find_normal(R_1,X_3,N_3,n);
-N_4 = SMSs3(R_2,X_3,N_3,E_1,n,n_X_3);
 %% Plotting
 figure(1); % Step 1 and 2
 % Plot transmitter and receiver planes
@@ -91,20 +84,24 @@ plot(h_E(1,:), h_E(2,:),'.k');
 plot(h_R(1,:), h_R(2,:),'.b');
 
 % Plot N and X
-plot(N(1),N(2),'ok')
-plot(X(1),X(2),'ob')
+c = 'ob';
+plot_point(N,c)
+plot_point(X,c)
 
-plot(X_1(1),X_1(2),'ob')
-plot(N_1(1),N_1(2),'ob')
-
-plot(X_2(1),X_2(2),'ob')
-plot(N_2(1),N_2(2),'ob')
-
-plot(X_3(1),X_3(2),'ob')
-plot(N_3(1),N_3(2),'ob')
-
-plot(X_4(1),X_4(2),'ob')
-plot(N_4(1),N_4(2),'ob')
+plot_point(N_1,c)
+plot_point(X_1,c)
+plot_point(N_2,c)
+plot_point(X_2,c)
+plot_point(N_3,c)
+plot_point(X_3,c)
+plot_point(N_4,c)
+plot_point(X_4,c)
+plot_point(N_5,c)
+plot_point(X_5,c)
+plot_point(N_6,c)
+plot_point(X_6,c)
+plot_point(N_7,c)
+plot_point(X_7,c)
 
 % Plot starting normals
 if plotNormals == true
@@ -145,6 +142,9 @@ function plot_ray(E,G,F,R,c)
     plot([E(1) G(1) F(1) R(1)],[E(2) G(2) F(2) R(2)],c)
 end
 
+function plot_point(P,c)
+    plot(P(1),P(2),c)
+end
 function h = hyp(U,P_1,P_2,phi)
     alpha = angh(P_2-P_1);
     h = P_1 + ( (U/2)^2  - norm(P_1-P_2)^2 ) ./ (U - 2 * norm(P_1-P_2) * cos(phi) ) .* [cos(phi+alpha); sin(phi+alpha)];
@@ -198,4 +198,25 @@ function F_i = SMSs3(E,G,F,R,n,n_G)
     v_i = (G-E)/norm(G-E);
     v_r = find_reflected_ray(v_i,1,n,n_G);
 	F_i = find_new_point(G,F,R,v_r,n);  
+end
+
+function X_inc = SMSs4(ER,N_i,X_i,n,right)
+    if right == 1
+        E_1 = ER(:,:,1)';
+        E_2 = ER(:,:,2)';
+        R_1 = ER(:,:,3)';
+    else
+        E_1 = ER(:,:,3)';
+        E_2 = ER(:,:,4)';
+        R_1 = ER(:,:,1)';
+        [N_i, X_i] = deal(X_i,N_i);
+    end
+    
+    n_N = find_normal(E_1,N_i,X_i,n);
+    X_inc = SMSs3(E_2,N_i,X_i,R_1,n,n_N);
+end
+
+function [X_inc, N_inc] = SMSs4_layer(ER,N_i,X_i,n)
+    X_inc = SMSs4(ER,N_i,X_i,n,1);
+    N_inc = SMSs4(ER,N_i,X_i,n,0);
 end
