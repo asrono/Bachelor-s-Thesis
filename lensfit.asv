@@ -26,7 +26,7 @@ Y_3d(3,:,:) = X_lens(2,:,:);
 
 %% Fit ellipse
 mid_index = l_N/2;
-EllipsParameters = zeros(mid_index,6);
+EllipsParameters = zeros(mid_index,)
 for i = 1:mid_index
     n_s = N_3d(2:3,i);
     n_e = N_3d(2:3,mid_index+i);
@@ -34,7 +34,7 @@ for i = 1:mid_index
     m_e = M_3d(2:3,mid_index+i);
     extra = N_3d(2,i)*[cos(0.5),sin(0.5)]';
     XY = [m_s m_e n_s n_e extra]';
-    EllipsParameters(i,:) = EllipseDirectFit(XY)';
+    A(i,:) = EllipseDirectFit(XY)';
 end
 %% plot
 figure(1);
@@ -59,24 +59,22 @@ xlabel('x [m]');
 ylabel('y [m]');
 grid on
 
-figure(3);
-hold on
-for i = 1:length(EllipsParameters)
-    %Convert the A to str 
-    a = num2str(EllipsParameters(i,1)); 
-    b = num2str(EllipsParameters(i,2));
-    c = num2str(EllipsParameters(i,3));
-    d = num2str(EllipsParameters(i,4));
-    e = num2str(EllipsParameters(i,5));
-    f = num2str(EllipsParameters(i,6));
-
-    %Equation 
-    figure(3);
-    eqt= ['(',a, ')*x^2 + (',b,')*x*y + (',c,')*y^2 + (',d,')*x+ (',e,')*y + (',f,')']; 
-    fimplicit(@(x,y) eval(eqt));
-end
-hold off
-movegui
+% figure(3);
+% %Convert the A to str 
+% a = num2str(A(1)); 
+% b = num2str(A(2)); 
+% c = num2str(A(3)); 
+% d = num2str(A(4)); 
+% e = num2str(A(5)); 
+% f = num2str(A(6));
+% 
+% %Equation 
+% figure(3);
+% eqt= ['(',a, ')*x^2 + (',b,')*x*y + (',c,')*y^2 + (',d,')*x+ (',e,')*y + (',f,')']; 
+% fimplicit(@(x,y) eval(eqt)); hold on
+% scatter(XY(:,1),XY(:,2)) 
+% hold off
+% movegui
 %% functions
 function plot_point(P,c)
     plot(P(1),P(2),c)
