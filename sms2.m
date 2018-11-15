@@ -1,10 +1,12 @@
 %% SMS
 close all; clear all;
-plotHyp     = false;
+plotHyp     = true;
 plotLens    = true;
 plotSym     = true;
 plotRays    = false;
 plotNormals = false;
+
+SaveLens    = true;
 %% Input parameters
 % Etendue
 U = 1; % [m^2]
@@ -154,6 +156,11 @@ xlabel('Optical axis [m]')
 ylabel('y [m]')
 hold off
 
+%% Save variables
+if SaveLens
+    savefile = 'lensini.mat';
+    save(savefile,'N_lens', 'X_lens', 'ER');
+end
 %% Functions
 function plot_ray(E,G,F,R,c)
     plot([E(1) G(1) F(1) R(1)],[E(2) G(2) F(2) R(2)],c)
@@ -187,9 +194,9 @@ function a = angh(v)
     a = angp(v,[1 0]);
 end
 
-function normal = find_normal(P,N,X,n)
-    A = N - P;
-    B = (X - N);
+function normal = find_normal(E,N,X,n)
+    A = N - E;
+    B = X - N;
     C = A/norm(A)-n*B/norm(B);
     normal = C/norm(C);
 end
