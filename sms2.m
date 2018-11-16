@@ -16,10 +16,10 @@ U = 1; % [m^2]
 n = 1.6;
 
 % angles for starting parabola
-phi_E_start = 180;      % [degrees]
+phi_E_start = 250;      % [degrees]
 phi_E_end   = 360;      % [degrees]
 phi_R_start = 0;        % [degrees]
-phi_R_end   = 180;      % [degrees]
+phi_R_end   = 80;      % [degrees]
 phi_1       = 285.5;    % [degrees]
 phi_2       = 67.5    ; % [degrees]
 n_phi       = 1e5;      % #points to plot
