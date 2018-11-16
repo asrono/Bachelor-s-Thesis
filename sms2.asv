@@ -208,8 +208,7 @@ plot(N(1),N(2),'.k','Markersize',20)
 plot(X(1),X(2),'.k','Markersize',20)
 
 % Plot starting normals
-pos = get(gca, 'Position');
-annotation('textarrow',[N(1),N(1)+ n_N(1)]/(l_OA*1.02),[N(2), N(2)+n_N(2)]/1.9,'interpreter','latex', 'string','\textbf{n}_N','LineWidth',1);
+annotation('textarrow',[N(1), n_N(1)],[N(2), n_N(2)], 'string', );
 q_n_X = quiver(X(1),X(2),n_X(1),n_X(2));
 
 q_n_N.Color = 'black';
