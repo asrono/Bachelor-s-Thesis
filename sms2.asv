@@ -10,19 +10,19 @@ plotNormals = true;
 SaveLens    = true;
 %% Input parameters
 % Etendue
-U = 0.6; % [m^2]
+U = 0.78; % [m^2]
 % U < 2*[E_1,E_2] ( = 8 [m])
 
 % Refraction of index lens
 n = 1.6;
 
 % angles for starting parabola
-phi_E_start = 279;      % [degrees]
+phi_E_start = 280.6;      % [degrees]
 phi_E_end   = 360;      % [degrees]
 phi_R_start = 0;        % [degrees]
-phi_R_end   = 80;      % [degrees]
-phi_1       = 280.2;    % [degrees]
-phi_2       = 75.3    ; % [degrees]
+phi_R_end   = 74;      % [degrees]
+phi_1       = 281.3;    % [degrees]
+phi_2       = 73.1    ; % [degrees]
 n_phi       = 1e5;      % #points to plot
 
 % Define emitter (E) and receiver (R) plane
@@ -192,7 +192,7 @@ plot([0 l_OA],[0 0],'k--','LineWidth',1)
 % General settings
 title('SMS method step 1')
 xlim([-l_OA*0.02, l_OA*1.02])
-ylim([-2 2])
+ylim([-1 1]*2.5)
 axis off
 hold off
 
@@ -202,15 +202,15 @@ text(E(1,2)-2.0,E(2,2),'$E_1$','FontSize',14);
 text(R(1,1)+0.5,R(2,1),'$R_2$','FontSize',14);
 text(R(1,2)+0.5,R(2,2),'$R_1$','FontSize',14);
 
-text(6, 0.8, '$h_E$','FontSize',14);
-text(l_OA-4, 0.8, '$h_R$','FontSize',14);
+text(5.9, 0.9, '$h_E$','FontSize',14);
+text(l_OA-3.5, 0.9, '$h_R$','FontSize',14);
 
 text(N(1)-2,N(2),'\textbf{N}','FontSize',14);
 text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14);
 figure(2); print('SMS_step_1','-dpng','-r300');
 
 %% Figure 3 starting normals and rays
-figure(3); close; figure(3);
+figure(3);
 E = [E_1 E_2];
 R = [R_1 R_2];
 % Plot transmitter and receiver planes
@@ -223,10 +223,10 @@ plot(X(1),X(2),'.k','Markersize',20)
 
 % Plot starting normals
 pos = get(gca, 'Position');
-annotation('arrow',[N(1),N(1)+ n_N(1)]/(l_OA*1.03),[1,1]/2+[N(2), N(2)+n_N(2)]/4.6);
-annotation('arrow',[X(1),X(1)+ n_X(1)]/(l_OA*1.05),[1,1]/2+[X(2), X(2)+n_X(2)]/4.6);
-text(N(1)-2,N(2)+0.5,'$\textbf{n}_N$','FontSize',14);
-text(X(1)+0.5,X(2)+0.42,'$\textbf{n}_X$','FontSize',14);
+annotation('arrow',[N(1),N(1)+ n_N(1)]/(l_OA*1.035),[1,1]/2.45+[N(2), N(2)+n_N(2)]/4.6);
+annotation('arrow',[X(1),X(1)+ n_X(1)]/(l_OA*1.045),[1,1]/2.45+[X(2), X(2)+n_X(2)]/4.6);
+text(N(1)-3,N(2)+0.5,'$\textbf{n}_N$','FontSize',14);
+text(X(1)+1.5,X(2)+0.42,'$\textbf{n}_X$','FontSize',14);
 
 % Plot ray 1
 plot_ray_lw(E_1, N  , X  , R_1,'k',1)
@@ -237,7 +237,7 @@ plot([0 l_OA],[0 0],'k--','LineWidth',1)
 % General settings
 title('SMS method step 2 and 3')
 xlim([-l_OA*0.02, l_OA*1.02])
-ylim([-2 2])
+ylim([-1 1]*2.5)
 axis off
 hold off
 
@@ -248,11 +248,104 @@ text(R(1,1)+0.5,R(2,1),'$R_2$','FontSize',14);
 text(R(1,2)+0.5,R(2,2),'$R_1$','FontSize',14);
 
 text(4, -0.8, '$r_1$','FontSize',14);
-text(l_OA-3,-0.8, '$r_1$','FontSize',14);
+text(l_OA-2.5,-0.8, '$r_1$','FontSize',14);
 
 text(N(1)-2,N(2),'\textbf{N}','FontSize',14);
 text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14);
 figure(3); print('SMS_step_2_and_3','-dpng','-r300');
+
+%% Figure 4 second ray
+figure(4);
+E = [E_1 E_2];
+R = [R_1 R_2];
+% Plot transmitter and receiver planes
+plot(E(1,:),E(2,:),'k','LineWidth',1); hold on
+plot(R(1,:),R(2,:),'k','LineWidth',1);
+
+% Plot starting points
+plot(N(1),N(2),'.k','Markersize',20)
+plot(X(1),X(2),'.k','Markersize',20)
+plot(X_1(1),X_1(2),'.k','Markersize',20)
+
+% Plot starting normals
+pos = get(gca, 'Position');
+annotation('arrow',[N(1),N(1)+ n_N(1)]/(l_OA*1.035),[1,1]/2.45+[N(2), N(2)+n_N(2)]/4.6);
+annotation('arrow',[X(1),X(1)+ n_X(1)]/(l_OA*1.045),[1,1]/2.45+[X(2), X(2)+n_X(2)]/4.6);
+text(N(1)-3,N(2)+0.5,'$\textbf{n}_N$','FontSize',14);
+text(X(1)+1.5,X(2)+0.42,'$\textbf{n}_X$','FontSize',14);
+
+% Plot ray 1
+plot_ray_lw(E_1, N  , X  , R_1,'k',1)
+% plot ray 2
+plot_ray_lw(E_2, N, X_1 , R_1,'k',1)
+
+% Plot optical axis
+plot([0 l_OA],[0 0],'k--','LineWidth',1)
+
+% General settings
+title('SMS method step 4')
+xlim([-l_OA*0.02, l_OA*1.02])
+ylim([-1 1]*2.5)
+axis off
+hold off
+
+text(4, -0.8, '$r_1$','FontSize',14);
+text(l_OA-2.5,-0.8, '$r_1$','FontSize',14);
+
+text(4, 2.2, '$r_2$','FontSize',14);
+text(l_OA-2.2,-0.2, '$r_2$','FontSize',14);
+
+text(N(1)-2,N(2)+0.1,'\textbf{N}','FontSize',14);
+text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14)
+text(X_1(1)-1,X_1(2)-0.3,'\textbf{X$_1$}','FontSize',14)
+figure(4); print('SMS_step_4a','-dpng','-r300');
+
+figure(5);
+E = [E_1 E_2];
+R = [R_1 R_2];
+% Plot transmitter and receiver planes
+plot(E(1,:),E(2,:),'k','LineWidth',1); hold on
+plot(R(1,:),R(2,:),'k','LineWidth',1);
+
+% Plot starting points
+plot(N(1),N(2),'.k','Markersize',20)
+plot(X(1),X(2),'.k','Markersize',20)
+plot(X_1(1),X_1(2),'.k','Markersize',20)
+
+% Plot starting normals
+pos = get(gca, 'Position');
+annotation('arrow',[N(1),N(1)+ n_N(1)]/(l_OA*1.035),[1,1]/2.45+[N(2), N(2)+n_N(2)]/4.6);
+annotation('arrow',[X(1),X(1)+ n_X(1)]/(l_OA*1.045),[1,1]/2.45+[X(2), X(2)+n_X(2)]/4.6);
+text(N(1)-3,N(2)+0.5,'$\textbf{n}_N$','FontSize',14);
+text(X(1)+1.5,X(2)+0.42,'$\textbf{n}_X$','FontSize',14);
+
+% Plot ray 1
+plot_ray_lw(E_1, N  , X  , R_1,'k',1)
+% plot ray 2
+plot_ray_lw(E_2, N, X_1 , R_1,'k',1)
+
+% Plot optical axis
+plot([0 l_OA],[0 0],'k--','LineWidth',1)
+
+% General settings
+title('SMS method step 4')
+xmargin = 2;
+ymargin = 0.4;
+xlim([N(1)-xmargin, X(1)+xmargin])
+ylim([-1 1]*2.5)
+axis off
+hold off
+
+text(4, -0.8, '$r_1$','FontSize',14);
+text(l_OA-2.5,-0.8, '$r_1$','FontSize',14);
+
+text(4, 2.2, '$r_2$','FontSize',14);
+text(l_OA-2.2,-0.2, '$r_2$','FontSize',14);
+
+text(N(1)-2,N(2)+0.1,'\textbf{N}','FontSize',14);
+text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14)
+text(X_1(1)-1,X_1(2)-0.3,'\textbf{X$_1$}','FontSize',14)
+figure(5); print('SMS_step_4b','-dpng','-r300');
 %% Save variables
 if SaveLens
     savefile = 'lensini.mat';
@@ -305,6 +398,8 @@ function v_r = find_reflected_ray(v_i,n_i,n_r,normal)
     if dot(v_i,normal) < 0
         normal = -normal;
         c = -1;
+    else
+        c = 1;
     end
     n = n_i/n_r;
     v_r = n*v_i+(n*dot(normal,v_i)-sqrt(1-n^2*(1-dot(v_i,normal)))) * normal*c;
