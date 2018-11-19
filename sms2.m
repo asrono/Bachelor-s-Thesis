@@ -1,5 +1,6 @@
 %% SMS
 close all; clear all;
+set(0,'defaulttextinterpreter','latex'); set(0,'defaultaxesfontsize',14);
 plotHyp     = true;
 plotLens    = true;
 plotSym     = true;
@@ -68,6 +69,9 @@ n_X = find_normal(R_1,X,N,n);
 X_1 = SMSs3(E_2,N,X,R_1,n,n_N);
 N_1 = SMSs3(R_2,X,N,E_1,n,n_X);
 
+n_X_1 = find_normal(R_1,X_1,N,n);
+n_N_1 = find_normal(E_1,N_1,X,n);
+
 %% Step 4
 n_max = 100;
 X_lens = zeros(2,1,n_max);
@@ -132,6 +136,16 @@ q_n_N.LineWidth = 2;
 q_n_X.LineWidth = 2;
 q_n_N.MaxHeadSize = 0.8;
 q_n_X.MaxHeadSize = 0.8;
+
+q_n_N1 = quiver(N_1(1),N_1(2),n_N_1(1),n_N_1(2));
+q_n_X1 = quiver(X_1(1),X_1(2),n_X_1(1),n_X_1(2));
+
+q_n_N1.Color = 'black';
+q_n_X1.Color = 'blue';
+q_n_N1.LineWidth = 2;
+q_n_X1.LineWidth = 2;
+q_n_N1.MaxHeadSize = 0.8;
+q_n_X1.MaxHeadSize = 0.8;
 end
 
 % Plot optical axis
@@ -196,7 +210,7 @@ text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14);
 figure(2); print('SMS_step_1','-dpng','-r300');
 
 %% Figure 3 starting normals and rays
-figure(3);
+figure(3); close; figure(3);
 E = [E_1 E_2];
 R = [R_1 R_2];
 % Plot transmitter and receiver planes
@@ -209,25 +223,19 @@ plot(X(1),X(2),'.k','Markersize',20)
 
 % Plot starting normals
 pos = get(gca, 'Position');
-annotation('textarrow',[N(1),N(1)+ n_N(1)]/(l_OA*1.02),[N(2), N(2)+n_N(2)]/1.9,'interpreter','latex', 'string','\textbf{n}_N','LineWidth',1);
-q_n_X = quiver(X(1),X(2),n_X(1),n_X(2));
+annotation('arrow',[N(1),N(1)+ n_N(1)]/(l_OA*1.03),[1,1]/2+[N(2), N(2)+n_N(2)]/4.6);
+annotation('arrow',[X(1),X(1)+ n_X(1)]/(l_OA*1.05),[1,1]/2+[X(2), X(2)+n_X(2)]/4.6);
+text(N(1)-2,N(2)+0.5,'$\textbf{n}_N$','FontSize',14);
+text(X(1)+0.5,X(2)+0.42,'$\textbf{n}_X$','FontSize',14);
 
-q_n_N.Color = 'black';
-q_n_X.Color = 'black';
-q_n_N.LineWidth = 1;
-q_n_X.LineWidth = 1;
-q_n_N.MaxHeadSize = 1;
-q_n_X.MaxHeadSize = 1;
-q_n_N.AlignVertexCenters = 'on';
-
-
-% plot first ray
+% Plot ray 1
 plot_ray_lw(E_1, N  , X  , R_1,'k',1)
+
 % Plot optical axis
 plot([0 l_OA],[0 0],'k--','LineWidth',1)
 
 % General settings
-title('SMS method step 3')
+title('SMS method step 2 and 3')
 xlim([-l_OA*0.02, l_OA*1.02])
 ylim([-2 2])
 axis off
