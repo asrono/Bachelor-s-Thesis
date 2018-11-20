@@ -196,7 +196,7 @@ ylim([-1 1]*2.5)
 axis off
 hold off
 
-% annotations
+% Annotations
 text(E(1,1)-2.0,E(2,1),'$E_2$','FontSize',14);
 text(E(1,2)-2.0,E(2,2),'$E_1$','FontSize',14);
 text(R(1,1)+0.5,R(2,1),'$R_2$','FontSize',14);
@@ -207,6 +207,8 @@ text(l_OA-3.5, 0.9, '$h_R$','FontSize',14);
 
 text(N(1)-2,N(2),'\textbf{N}','FontSize',14);
 text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14);
+
+% Save figure
 figure(2); print('SMS_step_1','-dpng','-r300');
 
 %% Figure 3 starting normals and rays
@@ -241,7 +243,7 @@ ylim([-1 1]*2.5)
 axis off
 hold off
 
-% annotations
+% Annotations
 text(E(1,1)-2.0,E(2,1),'$E_2$','FontSize',14);
 text(E(1,2)-2.0,E(2,2),'$E_1$','FontSize',14);
 text(R(1,1)+0.5,R(2,1),'$R_2$','FontSize',14);
@@ -252,7 +254,9 @@ text(l_OA-2.5,-0.8, '$r_1$','FontSize',14);
 
 text(N(1)-2,N(2),'\textbf{N}','FontSize',14);
 text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14);
-figure(3); print('SMS_step_2_and_3','-dpng','-r300');
+
+% Save figure
+figure(3); print('SMS_step_2_3','-dpng','-r300');
 
 %% Figure 4 second ray
 figure(4);
@@ -289,6 +293,12 @@ ylim([-1 1]*2.5)
 axis off
 hold off
 
+% Annotations
+text(E(1,1)-2.0,E(2,1),'$E_2$','FontSize',14);
+text(E(1,2)-2.0,E(2,2),'$E_1$','FontSize',14);
+text(R(1,1)+0.5,R(2,1),'$R_2$','FontSize',14);
+text(R(1,2)+0.5,R(2,2),'$R_1$','FontSize',14);
+
 text(4, -0.8, '$r_1$','FontSize',14);
 text(l_OA-2.5,-0.8, '$r_1$','FontSize',14);
 
@@ -298,9 +308,12 @@ text(l_OA-2.2,-0.2, '$r_2$','FontSize',14);
 text(N(1)-2,N(2)+0.1,'\textbf{N}','FontSize',14);
 text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14)
 text(X_1(1)-1,X_1(2)-0.3,'\textbf{X$_1$}','FontSize',14)
+
+% Save figure
 figure(4); print('SMS_step_4a','-dpng','-r300');
 
-figure(5);close;figure(5);
+%% Figure 5 second ray zoom
+figure(5);
 E = [E_1 E_2];
 R = [R_1 R_2];
 % Plot transmitter and receiver planes
@@ -314,8 +327,8 @@ plot(X_1(1),X_1(2),'.k','Markersize',20)
 
 % Plot starting normals
 pos = get(gca, 'Position');
-annotation('arrow',[N(1),N(1)+ n_N(1)]/(l_OA*1.55),[1,1]/2.45+[N(2), N(2)+n_N(2)]/5.5);
-annotation('arrow',[X(1),X(1)+ n_X(1)]/(l_OA*1.11),[1,1]/2.45+[X(2), X(2)+n_X(2)]/5.9);
+annotation('arrow',[N(1),N(1)+ n_N(1)]/(l_OA*1.55), [1,1]/2.45+[N(2), N(2)+n_N(2)]/5.5);
+annotation('arrow',[X(1),X(1)+ n_X(1)]/(l_OA*1.105),[1,1]/2.45+[X(2), X(2)+n_X(2)]/5.9);
 text(N(1)-3,N(2)+0.5,'$\textbf{n}_N$','FontSize',14);
 text(X(1)+1.5,X(2)+0.42,'$\textbf{n}_X$','FontSize',14);
 
@@ -336,16 +349,185 @@ ylim([N(2)-ymargin, N(2)+ymargin/4])
 axis off
 hold off
 
-text(4, -0.8, '$r_1$','FontSize',14);
-text(l_OA-2.5,-0.8, '$r_1$','FontSize',14);
+% Annotations
+text(19, 1.96, '$r_2$','FontSize',14);
+text(20, 1.88, '$r_2$','FontSize',14);
+text(21, 1.62, '$r_2$','FontSize',14);
+
+text(19, 1.83, '$r_1$','FontSize',14);
+text(20, 1.95, '$r_1$','FontSize',14);
+text(21, 1.75, '$r_1$','FontSize',14);
 
 text(4, 2.2, '$r_2$','FontSize',14);
 text(l_OA-2.2,-0.2, '$r_2$','FontSize',14);
 
 text(N(1)-0.2,N(2)+0.015,'\textbf{N}','FontSize',14);
 text(X(1)+0.1,X(2),'\textbf{X}','FontSize',14)
-text(X_1(1)-1,X_1(2)-0.3,'\textbf{X$_1$}','FontSize',14)
+text(X_1(1)+0.05,X_1(2),'\textbf{X$_1$}','FontSize',14)
+
+annotation('textarrow',[0.25 0.15],[0.85 0.85],'interpreter','Latex','String','$E_1$','FontSize',14)
+annotation('textarrow',[0.25 0.15],[0.24 0.12],'interpreter','Latex','String','$E_2$','FontSize',14)
+annotation('textarrow',[0.8 0.9],[0.73 0.68],'interpreter','Latex','String','$R_1$','FontSize',14)
+annotation('textarrow',[0.7 0.8],[0.25 0.09],'interpreter','Latex','String','$R_2$','FontSize',14)
+
+% Save figure
 figure(5); print('SMS_step_4b','-dpng','-r300');
+
+%% Figure 6 third ray zoom
+figure(6);
+E = [E_1 E_2];
+R = [R_1 R_2];
+% Plot transmitter and receiver planes
+plot(E(1,:),E(2,:),'k','LineWidth',1); hold on
+plot(R(1,:),R(2,:),'k','LineWidth',1);
+
+% Plot starting points
+plot(N(1),N(2),'.k','Markersize',20)
+plot(X(1),X(2),'.k','Markersize',20)
+plot(X_1(1),X_1(2),'.k','Markersize',20)
+plot(N_1(1),N_1(2),'.k','Markersize',20)
+
+% Plot ray 1
+plot_ray_lw(E_1, N  , X  , R_1,':k',0.1)
+% plot ray 2
+plot_ray_lw(E_2, N, X_1 , R_1,':k',0.1)
+% Plot ray 3
+plot_ray_lw(E_1, N_1  , X  , R_2,'k',1)
+
+% Plot optical axis
+plot([0 l_OA],[0 0],'k--','LineWidth',1)
+
+% General settings
+title('SMS method step 4')
+xmargin = 1;
+ymargin = 0.4;
+xlim([N(1)-xmargin, X(1)+xmargin])
+ylim([N(2)-ymargin, N(2)+ymargin/4])
+axis off
+hold off
+
+% Annotations
+text(19, 1.77, '$r_3$','FontSize',14);
+text(20, 1.92, '$r_3$','FontSize',14);
+text(21, 1.88, '$r_3$','FontSize',14);
+
+text(N(1)-0.2,N(2)+0.015,'\textbf{N}','FontSize',14);
+text(N_1(1)-0.2,N_1(2)+0.015,'\textbf{N$_1$}','FontSize',14);
+text(X(1)+0.1,X(2),'\textbf{X}','FontSize',14)
+text(X_1(1)+0.05,X_1(2),'\textbf{X$_1$}','FontSize',14)
+
+annotation('textarrow',[0.25 0.15],[0.85 0.85],'interpreter','Latex','String','$E_1$','FontSize',14)
+annotation('textarrow',[0.25 0.15],[0.24 0.12],'interpreter','Latex','String','$E_2$','FontSize',14)
+annotation('textarrow',[0.8 0.9],[0.73 0.68],'interpreter','Latex','String','$R_1$','FontSize',14)
+annotation('textarrow',[0.7 0.8],[0.25 0.09],'interpreter','Latex','String','$R_2$','FontSize',14)
+% Save figure
+figure(6); print('SMS_step_4c','-dpng','-r300');
+%% Figure 7 fourth and fifth ray zoom
+figure(7); close; figure(7);
+E = [E_1 E_2];
+R = [R_1 R_2];
+% Plot transmitter and receiver planes
+plot(E(1,:),E(2,:),'k','LineWidth',1); hold on
+plot(R(1,:),R(2,:),'k','LineWidth',1);
+
+% Plot starting points
+plot(N(1),N(2),'.k','Markersize',20)
+plot(X(1),X(2),'.k','Markersize',20)
+plot(X_1(1),X_1(2),'.k','Markersize',20)
+plot(N_1(1),N_1(2),'.k','Markersize',20)
+plot(X_lens(1,1,3),X_lens(2,1,3),'.k','Markersize',20);
+plot(N_lens(1,1,3),N_lens(2,1,3),'.k','Markersize',20);
+
+% Plot ray 1
+plot_ray_lw(E_1, N  , X  , R_1,':k',0.1)
+% plot ray 2
+plot_ray_lw(E_2, N, X_1 , R_1,':k',0.1)
+% Plot ray 3
+plot_ray_lw(E_1, N_1  , X  , R_2,':k',1)
+% plot ray 4
+plot_ray_lw(E_2, N_1, X_lens(:,:,3) , R_1,'k',1)
+% plot ray 5
+plot_ray_lw(E_1, N_lens(:,:,3), X_lens(:,:,2) , R_2,'k',1)
+
+
+% Plot optical axis
+plot([0 l_OA],[0 0],'k--','LineWidth',1)
+
+% General settings
+title('SMS method step 4')
+xmargin = 1;
+ymargin = 0.4;
+xlim([N(1)-xmargin, X(1)+xmargin])
+ylim([N(2)-ymargin, N(2)+ymargin/4])
+axis off
+hold off
+
+% Annotations
+text(19, 1.89, '$r_4$','FontSize',14);
+text(19.86, 1.855, '$r_4$','FontSize',14);
+text(21, 1.61, '$r_4$','FontSize',14);
+
+text(19, 1.69, '$r_5$','FontSize',14);
+text(19.86, 1.78, '$r_5$','FontSize',14);
+text(21, 1.81, '$r_5$','FontSize',14);
+text(N(1)-0.2,N(2)+0.015,'\textbf{N}','FontSize',14);
+text(N_1(1)-0.2,N_1(2)+0.015,'\textbf{N$_1$}','FontSize',14);
+text(N_lens(1,1,3)-0.2,N_lens(2,1,3)+0.015,'\textbf{N$_2$}','FontSize',14);
+text(X(1)+0.1,X(2),'\textbf{X}','FontSize',14)
+text(X_1(1)+0.05,X_1(2)+0.01,'\textbf{X$_1$}','FontSize',14)
+text(X_lens(1,1,3)+0.05,X_lens(2,1,3)+0.01,'\textbf{X$_2$}','FontSize',14)
+
+annotation('textarrow',[0.25 0.15],[0.85 0.85],'interpreter','Latex','String','$E_1$','FontSize',14)
+annotation('textarrow',[0.25 0.15],[0.24 0.12],'interpreter','Latex','String','$E_2$','FontSize',14)
+annotation('textarrow',[0.8 0.9],[0.73 0.68],'interpreter','Latex','String','$R_1$','FontSize',14)
+annotation('textarrow',[0.7 0.8],[0.25 0.09],'interpreter','Latex','String','$R_2$','FontSize',14)
+% Save figure
+figure(7); print('SMS_step_4d','-dpng','-r300');
+%% Figure 8 whole lens
+figure(8);
+E = [E_1 E_2];
+R = [R_1 R_2];
+
+% Plot transmitter and receiver planes
+plot(E(1,:),E(2,:),'k','LineWidth',1); hold on
+plot(R(1,:),R(2,:),'k','LineWidth',1);
+
+
+% Plot points
+plot(N(1),N(2),'.k','Markersize',20)
+plot(X(1),X(2),'.k','Markersize',20)
+
+for j = 1:(i-1)
+    N_j = N_lens(:,:,j);
+    X_j = X_lens(:,:,j);
+    plot(N_j(1),N_j(2),'.k','Markersize',20)
+    plot(X_j(1),X_j(2),'.k','Markersize',20)
+    plot(N_j(1),-N_j(2),'ok','Markersize',5)
+    plot(X_j(1),-X_j(2),'ok','Markersize',5)
+end
+
+% Plot optical axis
+plot([0 l_OA],[0 0],'k--','LineWidth',1)
+
+% General settings
+title('SMS method complete')
+xlim([-l_OA*0.02, l_OA*1.02])
+ylim([-1 1]*2.5)
+axis off
+hold off
+
+% Annotations
+text(E(1,1)-2.0,E(2,1),'$E_2$','FontSize',14);
+text(E(1,2)-2.0,E(2,2),'$E_1$','FontSize',14);
+text(R(1,1)+0.5,R(2,1),'$R_2$','FontSize',14);
+text(R(1,2)+0.5,R(2,2),'$R_1$','FontSize',14);
+
+text(N(1)-2,N(2),'\textbf{N}','FontSize',14);
+text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14);
+text(N(1)-2,-N(2),'\textbf{M}','FontSize',14);
+text(X(1)+0.5,-X(2),'\textbf{Y}','FontSize',14);
+% Save figure
+figure(8); print('SMS_step_4e','-dpng','-r300');
 %% Save variables
 if SaveLens
     savefile = 'lensini.mat';
@@ -359,6 +541,11 @@ end
 function plot_ray_lw(E,G,F,R,c,lw)
     plot([E(1) G(1) F(1) R(1)],[E(2) G(2) F(2) R(2)],c,'LineWidth',lw)
 end
+
+function plot_ray_lw_clr(E,G,F,R,c,lw)
+    plot([E(1) G(1) F(1) R(1)],[E(2) G(2) F(2) R(2)],'Color',c,'LineWidth',lw)
+end
+
 function plot_point(P,c)
     plot(P(1),P(2),c)
 end
