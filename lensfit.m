@@ -24,7 +24,7 @@ M_3d(3,:,:) = N_lens(2,:,:);
 Y_3d(1,:,:) = X_lens(1,:,:);
 Y_3d(3,:,:) = X_lens(2,:,:);
 
-n = 4;
+n = 16;
 S1 = zeros(3,n*l_N);
 for i = 1:n
 theta = 2*pi*i/n;

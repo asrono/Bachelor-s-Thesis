@@ -598,6 +598,7 @@ function Q = find_new_point(G,F,P,v_r,n)
     C_1 = n*S + dot(G-P,v_r);
     C_2 = S^2-norm(G-P)^2;
     Q   = G + v_r*(C_1 - sqrt(C_2*(1-n^2)+C_1^2))/(n^2-1);
+%     Q = G + 2*S/(n-1)*v_r;
 end
 
 function F_i = SMSs3(E,G,F,R,n,n_G)
