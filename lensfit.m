@@ -38,7 +38,7 @@ end
 %% plot
 figure(1); hold on;
 plot3(S1(1,:),S1(2,:),S1(3,:),'.k','MarkerSize',5);
-plot3(S2(1,:),S2(2,:),S2(3,:),'.    k','MarkerSize',5);
+plot3(S2(1,:),S2(2,:),S2(3,:),'.k','MarkerSize',5);
 xlim([-l_OA*0.02, l_OA*1.02])
 ylim([-3 3]);
 zlim([-3 3]);
@@ -51,14 +51,6 @@ hold off;
 %% functions
 function plot_point(P,c)
     plot(P(1),P(2),c)
-end
-
-function plot_points(P_vec,c)
-    hold on;
-    for P = P_vec       
-        plot_point(P,c);
-    end
-    hold off;
 end
 
 function in = extend_to_neg(in)
