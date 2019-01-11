@@ -7,7 +7,7 @@ a = 1e2;
 r = linspace(0,1,a);
 theta = linspace(0,2*pi,a);
 n_max = 4;
-figure(1);
+figure('position', [0, 0, 1500, 1500])
 ind = 1;
 for i = 1:(n_max+1)
     n = i - 1;
@@ -20,11 +20,11 @@ for i = 1:(n_max+1)
             Y = r.*cos(theta)';
             
             surf(X,Y,Z)
-            colormap copper
+            colormap jet
             shading interp
             xlim([-1,1])
             ylim([-1,1])
-            view(45,90)
+            view(0,90)
             grid off
             axis off       
         ind = ind + 1;
@@ -32,6 +32,22 @@ for i = 1:(n_max+1)
     ind = ind + n_max - length(m_arr)+1;
 end
 
+figure();
+Z = 1*Zer(0,0,r,theta)+0.1*Zer(1,-1,r,theta)+0.1*Zer(2,-2,r,theta)+0.1*Zer(2,0,r,theta);
+X = r.*sin(theta)';
+Y = r.*cos(theta)';
+surf(X,Y,Z)
+colormap jet
+shading interp
+xlim([-1,1])
+ylim([-1,1])
+zlim([0.8,1.3]);
+xlabel('$x$');ylabel('$y$');zlabel('$z$');
+view(45,45)
+grid on
+axis tight
+OptionZ.FrameRate=30;OptionZ.Duration=5.5;OptionZ.Periodic=true;
+CaptureFigVid([0,45;90,45;180,45;270,45], 'Zernikeplot',OptionZ)
 %%
 function radial = R(n,m,r)
     m = abs(m);
@@ -46,6 +62,8 @@ function radial = R(n,m,r)
     radial = x;
     end
 end
+
+
 
 
 function zernike = Zer(n,m,r,theta)
