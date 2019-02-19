@@ -33,7 +33,7 @@ for i = 1:(n_max+1)
 end
 
 figure();
-Z = 1*Zer(0,0,r,theta)+0.1*Zer(1,-1,r,theta)+0.1*Zer(2,-2,r,theta)+0.1*Zer(2,0,r,theta);
+Z = -.3*Zer(2,0,r,theta)-0.3*Zer(3,-3,r,theta)+0.2*Zer(4,-2,r,theta);
 X = r.*sin(theta)';
 Y = r.*cos(theta)';
 surf(X,Y,Z)
@@ -46,8 +46,8 @@ xlabel('$x$');ylabel('$y$');zlabel('$z$');
 view(45,45)
 grid on
 axis tight
-OptionZ.FrameRate=30;OptionZ.Duration=5.5;OptionZ.Periodic=true;
-CaptureFigVid([0,45;90,45;180,45;270,45], 'Zernikeplot',OptionZ)
+OptionZ.FrameRate=40;OptionZ.Duration=5.5;OptionZ.Periodic=true;
+CaptureFigVid([0,45;90,45;180,45;270,45;362,90], 'Zernikeplot',OptionZ)
 %%
 function radial = R(n,m,r)
     m = abs(m);

@@ -1,11 +1,11 @@
 %% SMS
 close all; clear all;
 set(0,'defaulttextinterpreter','latex'); set(0,'defaultaxesfontsize',14);
-plotHyp     = true;
+plotHyp     = false;
 plotLens    = true;
 plotSym     = true;
 plotRays    = false;
-plotNormals = true;
+plotNormals = false;
 
 SaveLens    = true;
 %% Input parameters

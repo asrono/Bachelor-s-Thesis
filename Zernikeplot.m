@@ -64,6 +64,7 @@ print('Zernike_radial_m','-dpng','-r300');
 
 %%
 function radial = R(n,m,r)
+    m = abs(m);
     top = (n-m)/2;
     bot = (n+m)/2;
     for s = 0 : top
