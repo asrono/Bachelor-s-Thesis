@@ -1,13 +1,27 @@
-close all; clear all;
-set(0,'defaulttextinterpreter','latex'); set(0,'defaultaxesfontsize',14);
+%% Zernike coef fit
+% This code fits zernike polynomials through data and outputs the coefs.
+
+% Dependencies: None
+% Author:       Niels Buijssen 4561473
+% Last updated: 28-04-2019
+
+% Detailed description:
+
+%% Settings
+clear all; close all;
+set(0,'defaulttextinterpreter','latex');
+set(0,'defaultaxesfontsize',14);
+set(0,'defaultAxesTickLabelInterpreter','latex');
+
 %% Load data
-savefile = 'lensini.mat';
-load(savefile);
+savefile = 'LensExample.mat';
+load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data/',savefile));
 l_OA = ER(1,1,3); % length of optical axis
-% %% extend lens to negative y plane
-% N_lens = extend_to_neg(N_lens);
-% X_lens = extend_to_neg(X_lens);
-% 
+
+%% extend lens to negative y plane
+N_lens = extend_to_neg(N_lens);
+X_lens = extend_to_neg(X_lens);
+
 % update length of N
 l_N = length(N_lens);
 
@@ -24,10 +38,11 @@ r(1,:) = N_lens(2,:,:)/max(r_0);
 r = r(1:end-1);
 f = f(1:end-1);
 l_N = l_N-1;
+
 figure(2);
 plot(r,f,'ko')
 hold on
-r_int = linspace(0,1,1e3);
+r_int = linspace(-1,1,1e3);
 f_int = interp1(r,f,r_int,'spline');
 
 r = r_int;
