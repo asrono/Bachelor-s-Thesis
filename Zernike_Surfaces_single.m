@@ -24,29 +24,6 @@ theta = linspace(0,2*pi,n_radial);
 X = r.*sin(theta)';
 Y = r.*cos(theta)';
 
-n=4;
-m=-2;
-
-Z = Zer(n,m,r,theta);
-
-
-title_text = strcat('$n=',string(n),', m=',string(m),'$');
-
-surf(X,Y,Z)
-colormap jet
-shading interp
-xlim([-1,1])
-ylim([-1,1])
-xlabel('$x$');ylabel('$y$');zlabel('$z$');
-view(45,45)
-title(title_text)
-grid on
-axis tight
-
-
-filename = strcat('Single_Zernike_',string(n),string(m));
-print(filename,'-dpng','-r300');
-
 %% Functions
 function radial = R(n,m,r)
     m = abs(m);

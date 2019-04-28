@@ -1,14 +1,11 @@
-%% Zernike_Surfaces_multiple
-% This code makes a plot of the surfaces of the zernike polynomials -
-% together and single, and records a video to show a circular surface.
+%% EPPA_Taylor
+% This code makes a plots to demonstrate taylor expansions.
 
-% Dependencies: CaptureFigVid.m
+% Dependencies: None
 % Author:       Niels Buijssen 4561473
 % Last updated: 28-04-2019
 
 % Detailed description:
-% Saves video to main folder. (not worth coding to save to other folder
-% because it's only 1 video and don't expect to save more videos)
 
 %% Settings
 clear all; close all;
@@ -16,7 +13,7 @@ set(0,'defaulttextinterpreter','latex');
 set(0,'defaultaxesfontsize',14);
 set(0,'defaultAxesTickLabelInterpreter','latex');
 
-folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Zernike Surfaces/';
+folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\EPPA\Taylor/';
 
 xi = -2.5; xf = -xi;
 
@@ -39,7 +36,9 @@ xlim([xi,xf]*1.1);
 ylim([-1,1]*2)
 legend({'$f(x)$'}, 'interpreter','latex','location','southeast')
 grid on
-print('EPPA_Taylor_1','-dpng','-r300');
+figure_name = 'EPPA_Taylor_1';
+filetype    = '.png';
+print(figure(1), '-dpng', strcat(folder,figure_name,filetype))
 
 figure(2)
 plot(x_ini,y,'ko');hold on
@@ -48,7 +47,9 @@ ylim([-1,1]*2)
 grid on
 plot(x,y1,'r-');
 legend({'$f(x)$','$x$'}, 'interpreter','latex','location','southeast')
-print('EPPA_Taylor_2','-dpng','-r300');
+figure_name = 'EPPA_Taylor_2';
+filetype    = '.png';
+print(figure(2), '-dpng', strcat(folder,figure_name,filetype))
 
 figure(3)
 plot(x_ini,y,'ko');hold on
@@ -57,7 +58,9 @@ ylim([-1,1]*2)
 grid on
 plot(x,y1+y2_1,'r-');
 legend({'$f(x)$','$x+x^2$'}, 'interpreter','latex','location','southeast')
-print('EPPA_Taylor_3','-dpng','-r300');
+figure_name = 'EPPA_Taylor_3';
+filetype    = '.png';
+print(figure(3), '-dpng', strcat(folder,figure_name,filetype))
 
 figure(4)
 plot(x_ini,y,'ko');hold on
@@ -66,7 +69,9 @@ ylim([-1,1]*2)
 grid on
 plot(x,y1+y2_2,'r-');
 legend({'$f(x)$','$x+x^3$'}, 'interpreter','latex','location','southeast')
-print('EPPA_Taylor_4','-dpng','-r300');
+figure_name = 'EPPA_Taylor_4';
+filetype    = '.png';
+print(figure(4), '-dpng', strcat(folder,figure_name,filetype))
 
 figure(5)
 plot(x_ini,y,'ko');hold on
@@ -75,7 +80,9 @@ ylim([-1,1]*2)
 grid on
 plot(x,y1+y2_3,'r-');
 legend({'$f(x)$','$x-x^3$'}, 'interpreter','latex','location','southeast')
-print('EPPA_Taylor_5','-dpng','-r300');
+figure_name = 'EPPA_Taylor_5';
+filetype    = '.png';
+print(figure(5), '-dpng', strcat(folder,figure_name,filetype))
 
 figure(6)
 plot(x_ini,y,'ko');hold on
@@ -84,7 +91,9 @@ ylim([-1,1]*2)
 grid on
 plot(x,y1+y2,'r-');
 legend({'$f(x)$','$x-\frac{x^3}{6}$'}, 'interpreter','latex','location','southeast')
-print('EPPA_Taylor_6','-dpng','-r300');
+figure_name = 'EPPA_Taylor_6';
+filetype    = '.png';
+print(figure(6), '-dpng', strcat(folder,figure_name,filetype))
 
 figure(7)
 plot(x_ini,y,'ko');hold on
@@ -93,7 +102,9 @@ ylim([-1,1]*2)
 grid on
 plot(x,y1+y2+y3_1,'r-');
 legend({'$f(x)$','$x-\frac{x^3}{6}+x^4$'}, 'interpreter','latex','location','southeast')
-print('EPPA_Taylor_7','-dpng','-r300');
+figure_name = 'EPPA_Taylor_7';
+filetype    = '.png';
+print(figure(7), '-dpng', strcat(folder,figure_name,filetype))
 
 figure(8)
 plot(x_ini,y,'ko');hold on
@@ -102,4 +113,6 @@ ylim([-1,1]*2)
 grid on
 plot(x,y1+y2+y3,'r-');
 legend({'$f(x)$','$x-\frac{x^3}{6}+\frac{x^5}{120}$'}, 'interpreter','latex','location','southeast')
-print('EPPA_Taylor_8','-dpng','-r300');
+figure_name = 'EPPA_Taylor_8';
+filetype    = '.png';
+print(figure(8), '-dpng', strcat(folder,figure_name,filetype))

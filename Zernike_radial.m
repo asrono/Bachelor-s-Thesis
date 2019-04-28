@@ -1,10 +1,11 @@
-%% Zernikeplot
+%% Zernike_radial
+% This code makes plot of the radial parts of the zernike polynomials.
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
 % Last updated: 28-04-2019
 
-% Detailed description: -
+% Detailed description:
 
 %% Settings
 close all; clear all;
@@ -12,10 +13,14 @@ set(0,'defaulttextinterpreter','latex');
 set(0,'defaultaxesfontsize',14);
 set(0,'defaultAxesTickLabelInterpreter','latex'); 
 
-folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\SMS Method/';
+folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Zernike radial/';
 
+%% Input parameters
+% Define radius
 r = 0:1e-3:1;
-%%
+
+
+%% m=0, n even
 m = 0;
 n_lst = [2,4,6,8];
 set = {'k-','k:','k-.','k--'};
@@ -33,7 +38,11 @@ ylim([-1,1])
 grid on
 legend({'$n=2$','$n=4$','$n=6$','$n=8$'},'interpreter','latex','location','southeast')
 pbaspect([2,1,1])
-print('Zernike_radial_even','-dpng','-r300');
+
+% Save figure
+figure_name = 'Zernike_radial_even';
+filetype    = '.png';
+print(figure(1), '-dpng', strcat(folder,figure_name,filetype))
 %%
 m = 1;
 n_lst = [1,3,5,7];
@@ -52,7 +61,12 @@ ylim([-1,1])
 grid on
 legend({'$n=1$','$n=3$','$n=5$','$n=7$'},'interpreter','latex','location','southeast')
 pbaspect([2,1,1])
-print('Zernike_radial_odd','-dpng','-r300');
+
+% Save figure
+figure_name = 'Zernike_radial_odd';
+filetype    = '.png';
+print(figure(2), '-dpng', strcat(folder,figure_name,filetype))
+
 %%
 n = 7;
 m_lst = [1,3,5,7];
@@ -71,7 +85,11 @@ ylim([-1,1])
 grid on
 legend({'$m=1$','$m=3$','$m=5$','$m=7$'},'interpreter','latex','location','southeast')
 pbaspect([2,1,1])
-print('Zernike_radial_m','-dpng','-r300');
+
+% Save figure
+figure_name = 'Zernike_radial_m';
+filetype    = '.png';
+print(figure(3), '-dpng', strcat(folder,figure_name,filetype))
 
 %%
 function radial = R(n,m,r)

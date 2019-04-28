@@ -1,13 +1,29 @@
-%% SMS
+%% SMS_Method
+% The SMS (Simultaneous Multiple Surfaces) method can create points on the
+% surfaces of a lens. This code gives a proof of concept and makes figures
+% to show how the method works.
+
+% Dependencies: None
+% Author:       Niels Buijssen 4561473
+% Last updated: 28-04-2019
+
+% Detailed description:
+
+%% Settings
 close all; clear all;
-set(0,'defaulttextinterpreter','latex'); set(0,'defaultaxesfontsize',14);
+set(0,'defaulttextinterpreter','latex');
+set(0,'defaultaxesfontsize',14);
+set(0,'defaultAxesTickLabelInterpreter','latex'); 
+
+folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\SMS Method/';
+%% Plotting options
 plotHyp     = false;
 plotLens    = true;
 plotSym     = true;
 plotRays    = false;
 plotNormals = false;
-
 SaveLens    = true;
+
 %% Input parameters
 % Etendue
 U = 0.78; % [m^2]
@@ -82,6 +98,9 @@ X_lens(:,:,2) = X_1;
 N_lens(:,:,2) = N_1;
 
 i = 2;
+
+% Set n_max to prevent program for running too long. Second conditions
+% stops the loop when the optical axis is reached.
 while i < n_max && X_lens(2,1,i) >= 0
     X_i = X_lens(:,:,i);
     N_i = N_lens(:,:,i);
@@ -170,7 +189,10 @@ xlabel('Optical axis [m]')
 ylabel('y [m]')
 hold off
 
-print(figure(1), '-dpng', 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures/Step_1.png')
+% Save figure
+figure_name = 'SMS_Overview';
+filetype    = '.png';
+print(figure(1), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Figure 2 starting points
 figure(2);
@@ -211,7 +233,9 @@ text(N(1)-2,N(2),'\textbf{N}','FontSize',14);
 text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14);
 
 % Save figure
-figure(2); print('SMS_step_1','-dpng','-r300');
+figure_name = 'SMS_step_1';
+filetype    = '.png';
+print(figure(2), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Figure 3 starting normals and rays
 figure(3);
@@ -258,7 +282,9 @@ text(N(1)-2,N(2),'\textbf{N}','FontSize',14);
 text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14);
 
 % Save figure
-figure(3); print('SMS_step_2','-dpng','-r300');
+figure_name = 'SMS_step_2';
+filetype    = '.png';
+print(figure(3), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Figure 4 second ray
 figure(4);
@@ -312,7 +338,9 @@ text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14)
 text(X_1(1)-1,X_1(2)-0.3,'\textbf{X$_1$}','FontSize',14)
 
 % Save figure
-figure(4); print('SMS_step_3a','-dpng','-r300');
+figure_name = 'SMS_step_3a';
+filetype    = '.png';
+print(figure(4), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Figure 5 second ray zoom
 figure(5);
@@ -373,7 +401,9 @@ annotation('textarrow',[0.8 0.9],[0.73 0.68],'interpreter','Latex','String','$R_
 annotation('textarrow',[0.7 0.8],[0.25 0.09],'interpreter','Latex','String','$R_2$','FontSize',14)
 
 % Save figure
-figure(5); print('SMS_step_3b','-dpng','-r300');
+figure_name = 'SMS_step_3b';
+filetype    = '.png';
+print(figure(5), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Figure 6 third ray zoom
 figure(6);
@@ -422,8 +452,12 @@ annotation('textarrow',[0.25 0.15],[0.85 0.85],'interpreter','Latex','String','$
 annotation('textarrow',[0.25 0.15],[0.24 0.12],'interpreter','Latex','String','$E_2$','FontSize',14)
 annotation('textarrow',[0.8 0.9],[0.73 0.68],'interpreter','Latex','String','$R_1$','FontSize',14)
 annotation('textarrow',[0.7 0.8],[0.25 0.09],'interpreter','Latex','String','$R_2$','FontSize',14)
+
 % Save figure
-figure(6); print('SMS_step_3c','-dpng','-r300');
+figure_name = 'SMS_step_3c';
+filetype    = '.png';
+print(figure(6), '-dpng', strcat(folder,figure_name,filetype))
+
 %% Figure 7 fourth and fifth ray zoom
 figure(7); close; figure(7);
 E = [E_1 E_2];
@@ -483,8 +517,12 @@ annotation('textarrow',[0.25 0.15],[0.85 0.85],'interpreter','Latex','String','$
 annotation('textarrow',[0.25 0.15],[0.24 0.12],'interpreter','Latex','String','$E_2$','FontSize',14)
 annotation('textarrow',[0.8 0.9],[0.73 0.68],'interpreter','Latex','String','$R_1$','FontSize',14)
 annotation('textarrow',[0.7 0.8],[0.25 0.09],'interpreter','Latex','String','$R_2$','FontSize',14)
+
 % Save figure
-figure(7); print('SMS_step_4a','-dpng','-r300');
+figure_name = 'SMS_step_4a';
+filetype    = '.png';
+print(figure(7), '-dpng', strcat(folder,figure_name,filetype))
+
 %% Figure 8 whole lens
 figure(8);
 E = [E_1 E_2];
@@ -528,8 +566,12 @@ text(N(1)-2,N(2),'\textbf{N}','FontSize',14);
 text(X(1)+0.5,X(2),'\textbf{X}','FontSize',14);
 text(N(1)-2,-N(2),'\textbf{M}','FontSize',14);
 text(X(1)+0.5,-X(2),'\textbf{Y}','FontSize',14);
+
 % Save figure
-figure(8); print('SMS_step_4b','-dpng','-r300');
+figure_name = 'SMS_step_4b';
+filetype    = '.png';
+print(figure(8), '-dpng', strcat(folder,figure_name,filetype))
+
 %% Save variables
 if SaveLens
     savefile = 'lensini.mat';
@@ -600,7 +642,6 @@ function Q = find_new_point(G,F,P,v_r,n)
     C_1 = n*S + dot(G-P,v_r);
     C_2 = S^2-norm(G-P)^2;
     Q   = G + v_r*(C_1 - sqrt(C_2*(1-n^2)+C_1^2))/(n^2-1);
-%     Q = G + 2*S/(n-1)*v_r;
 end
 
 function F_i = SMSs3(E,G,F,R,n,n_G)
