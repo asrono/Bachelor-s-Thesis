@@ -123,7 +123,6 @@ for i = 1:(n_max+1)
         view(45,45)
         title(title_text)
         grid on
-        axis tight
         ind = ind + 1;
         hold off
         
