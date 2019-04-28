@@ -93,6 +93,17 @@ surface_zernike_X = coef2surf(a_vec_X,r_plot);
 figure(2);
 plot(r_plot*r_max_N,surface_zernike_N,'-b')
 plot(r_plot*r_max_X,surface_zernike_X,'-b')
+
+figure(3);
+r = linspace(0,1,1e3);
+theta = linspace(0,2*pi,1e3);
+Z = a_vec_N(double2single_index(0,0)+1)*Zer(0,0,r,theta)+a_vec_N(double2single_index(2,0)+1)*Zer(2,0,r,theta)+a_vec_N(double2single_index(4,0)+1)*Zer(4,0,r,theta);
+X = r_max_N*r.*sin(theta)';
+Y = r_max_N*r.*cos(theta)';
+surf(X,Y,Z)
+zlim([0,35])
+colormap jet
+shading interp
 %%
 function rad = coef2surf(a_vec,r_plot)
     for j = 0:(length(a_vec)-1)
