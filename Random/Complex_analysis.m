@@ -1,7 +1,7 @@
 clear all; close all;set(0,'defaulttextinterpreter','latex'); set(0,'defaultaxesfontsize',14);
 % rgb = 1 is color, rgb = 0 is black and white
 rgb = 1;
-% define lower and upper bound for power
+% define lower and upper bound for power 
 lower = -10;
 upper = 13;
 power = linspace(lower,upper,1000);

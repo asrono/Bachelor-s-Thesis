@@ -1,5 +1,17 @@
-close all; clear all;
-set(0,'defaulttextinterpreter','latex'); set(0,'defaultaxesfontsize',14);
+%% Lens 3D [Obsolete]
+% This code makes a plots to demonstrate taylor expansions.
+
+% Dependencies: None
+% Author:       Niels Buijssen 4561473
+% Last updated: 28-04-2019
+
+% Detailed description:
+
+%% Settings
+clear all; close all;
+set(0,'defaulttextinterpreter','latex');
+set(0,'defaultaxesfontsize',14);
+set(0,'defaultAxesTickLabelInterpreter','latex');
 %% Load data
 savefile = 'lensini.mat';
 load(savefile);
@@ -24,7 +36,7 @@ M_3d(3,:,:) = N_lens(2,:,:);
 Y_3d(1,:,:) = X_lens(1,:,:);
 Y_3d(3,:,:) = X_lens(2,:,:);
 
-n = 4;
+n = 16;
 S1 = zeros(3,n*l_N);
 for i = 1:n
 theta = 2*pi*i/n;
