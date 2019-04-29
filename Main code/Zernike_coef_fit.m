@@ -19,10 +19,6 @@ load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data/',savefil
 l_OA = ER(1,1,3); % length of optical axis
 
 %% Input handling
-% % extend lens to negative y plane
-% N_lens = extend_to_neg(N_lens);
-% X_lens = extend_to_neg(X_lens);
-
 % update length of N
 l_N = length(N_lens);
 
@@ -45,11 +41,6 @@ r       = zeros(1,l_N);
 % search for a represenation such that z = surface(r) such that |r| <= 1.
 [surface_N, r_N, r_max_N] = extract_points(N_lens);
 [surface_X, r_X, r_max_X] = extract_points(X_lens);
-% r_max_N = max(N_lens(2,:,:));   % find maximum radius element
-% r_max_X = max(X_lens(2,:,:));   % find maximum radius element
-% 
-% r_N(1,:) = N_lens(2,:,:)/r_max_N; % get normalised radius points
-% r_X(1,:) = N_lens(2,:,:)/r_max_X; % get normalised radius points
 
 % plot raw datapoints
 figure(2); movegui('northeast');
@@ -58,7 +49,7 @@ hold on
 plot(r_X*r_max_X,surface_X,'ko')
 
 % set amount of interpolated points
-n_interpolation = 1e3;
+n_interpolation = 1e3; % recommended > 1e3
 
 % get interpolated points
 [r_interpolated_N, surface_interpolated_N] = ...
@@ -74,18 +65,11 @@ plot(surface_interpolated_X,r_max_X*r_interpolated_X,'-r')
 
 m = 0;
 for n = 0:2:6
-    double2single_index(n,m);
     a_vec_N(double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_N,surface_interpolated_N); %#ok<SAGROW>
     a_vec_X(double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_X,surface_interpolated_X); %#ok<SAGROW>
 end
 
 r_plot = 0:0.01:1;
-% for j = 0:(length(a_vec)-1)
-%     [n,m] = single2double_index(j);
-%     rad_mat(j+1,:) = a_vec(j+1)*R(n,m,r_plot);
-% end
-% rad = sum(rad_mat,1);
-
 surface_zernike_N = coef2surf(a_vec_N,r_plot);
 surface_zernike_X = coef2surf(a_vec_X,r_plot);
 
@@ -97,13 +81,40 @@ plot(r_plot*r_max_X,surface_zernike_X,'-b')
 figure(3);
 r = linspace(0,1,1e3);
 theta = linspace(0,2*pi,1e3);
-Z = a_vec_N(double2single_index(0,0)+1)*Zer(0,0,r,theta)+a_vec_N(double2single_index(2,0)+1)*Zer(2,0,r,theta)+a_vec_N(double2single_index(4,0)+1)*Zer(4,0,r,theta);
-X = r_max_N*r.*sin(theta)';
-Y = r_max_N*r.*cos(theta)';
-surf(X,Y,Z)
-zlim([0,35])
+Z_N = a_vec_N(double2single_index(0,0)+1)*Zer(0,0,r,theta)+a_vec_N(double2single_index(2,0)+1)*Zer(2,0,r,theta)+a_vec_N(double2single_index(4,0)+1)*Zer(4,0,r,theta);
+X_N = r_max_N*r.*sin(theta)';
+Y_N = r_max_N*r.*cos(theta)';
+
+Z_X = a_vec_X(double2single_index(0,0)+1)*Zer(0,0,r,theta)+a_vec_X(double2single_index(2,0)+1)*Zer(2,0,r,theta)+a_vec_X(double2single_index(4,0)+1)*Zer(4,0,r,theta);
+X_X = r_max_X*r.*sin(theta)';
+Y_X = r_max_X*r.*cos(theta)';
+
+surf(X_N,Y_N,Z_N); hold on;
+surf(X_X,Y_X,Z_X);
+
+zlim([18,22]);
 colormap jet
 shading interp
+
+
+figure(4);
+r = linspace(0,1,1e2);
+theta = linspace(0,2*pi,1e2);
+Z_N = a_vec_N(double2single_index(0,0)+1)*Zer(0,0,r,theta)+a_vec_N(double2single_index(2,0)+1)*Zer(2,0,r,theta)+a_vec_N(double2single_index(4,0)+1)*Zer(4,0,r,theta);
+X_N = r_max_N*r.*sin(theta)';
+Y_N = r_max_N*r.*cos(theta)';
+
+Z_X = a_vec_X(double2single_index(0,0)+1)*Zer(0,0,r,theta)+a_vec_X(double2single_index(2,0)+1)*Zer(2,0,r,theta)+a_vec_X(double2single_index(4,0)+1)*Zer(4,0,r,theta);
+X_X = r_max_X*r.*sin(theta)';
+Y_X = r_max_X*r.*cos(theta)';
+
+X = [X_N, fliplr(X_X)];
+Y = [Y_N, fliplr(Y_X)];
+Z = [Z_N, fliplr(Z_X)];
+
+mesh(X,Y,Z);
+shading interp
+zlim([18,22]);
 %%
 function rad = coef2surf(a_vec,r_plot)
     for j = 0:(length(a_vec)-1)
