@@ -14,7 +14,7 @@ set(0,'defaultaxesfontsize',14);
 set(0,'defaultAxesTickLabelInterpreter','latex');
 
 %% Load data
-savefile = 'LensExample.mat';
+savefile = 'LensExample2.mat';
 load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data/',savefile));
 l_OA = ER(1,1,3); % length of optical axis
 
@@ -64,7 +64,7 @@ plot(surface_interpolated_N,r_max_N*r_interpolated_N,'-r')
 plot(surface_interpolated_X,r_max_X*r_interpolated_X,'-r')
 
 m = 0;
-for n = 0:2:6
+for n = 0:2:8
     a_vec_N(double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_N,surface_interpolated_N); %#ok<SAGROW>
     a_vec_X(double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_X,surface_interpolated_X); %#ok<SAGROW>
 end
@@ -116,7 +116,10 @@ Z = [Z_N, fliplr(Z_X)];
 
 mesh(X,Y,Z);
 shading interp
-zlim([18,22]);
+zlim([0.6,2]);
+OptionZ.FrameRate=40;OptionZ.Duration=5.5;OptionZ.Periodic=true;
+CaptureFigVid([0,-90;0,45;90,45;90,90], 'LensMesh',OptionZ)
+
 %%
 function rad = coef2surf(a_vec,r_plot)
     for j = 0:(length(a_vec)-1)

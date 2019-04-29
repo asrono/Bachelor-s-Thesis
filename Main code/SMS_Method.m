@@ -574,8 +574,8 @@ print(figure(8), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Save variables
 if SaveLens
-    savefile = 'lensini.mat';
-    save(savefile,'N_lens', 'X_lens', 'ER');
+    savefile = 'lensExample.mat';
+    save(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',savefile),'N_lens', 'X_lens', 'ER');
 end
 %% Functions
 function plot_ray(E,G,F,R,c)

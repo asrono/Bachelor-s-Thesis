@@ -7,7 +7,7 @@
 % Last updated: 28-04-2019
 
 % Detailed description:
-% Saves video to main folder. (not worth coding to save to other folder
+% Saves video to current folder. (not worth coding to save to other folder
 % because it's only 1 video and don't expect to save more videos)
 
 %% Settings
