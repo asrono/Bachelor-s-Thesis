@@ -22,16 +22,6 @@ l_OA = ER(1,1,3); % length of optical axis
 % update length of N
 l_N = length(N_lens);
 
-%% Plotting
-% Plot raw data
-figure(1); movegui('east');
-plot_points(N_lens,'ok')
-plot_points(X_lens,'ok')
-hold on;
-xlim([0,30])
-ylim([-2,2])
-grid minor
-
 %% Fitting
 % create empty vectors
 surface = zeros(1,l_N);
@@ -49,26 +39,45 @@ hold on
 plot(r_X*r_max_X,surface_X,'ko')
 
 % set amount of interpolated points
-n_interpolation = 1e6; % recommended > 1e3
+n_list = 10.^linspace(log10(l_N),3,50);
 
-% get interpolated points
-[r_interpolated_N, surface_interpolated_N] = ...
-    interpol(surface_N, r_N,0,1,n_interpolation);
+% loop over n_list
+for i = 1:length(n_list)
+    n_interpolation = n_list(i);
+    
+    % get interpolated points
+    [r_interpolated_N, surface_interpolated_N] = ...
+        interpol(surface_N, r_N,0,1,n_interpolation);
 
-[r_interpolated_X, surface_interpolated_X] = ...
-    interpol(surface_X, r_X,0,1,n_interpolation);
+    [r_interpolated_X, surface_interpolated_X] = ...
+        interpol(surface_X, r_X,0,1,n_interpolation);
 
-% plot interpolation
-figure(1);
-plot(surface_interpolated_N,r_max_N*r_interpolated_N,'-r')
-plot(surface_interpolated_X,r_max_X*r_interpolated_X,'-r')
-
-% find coefficients
-m = 0;
-for n = 0:2:14
-    a_vec_N(double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_N,surface_interpolated_N); %#ok<SAGROW>
-    a_vec_X(double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_X,surface_interpolated_X); %#ok<SAGROW>
+    % find coefficients
+    m = 0;
+    for n = 0:2:10
+        a_vec_N(i,double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_N,surface_interpolated_N); %#ok<SAGROW>
+        a_vec_X(i,double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_X,surface_interpolated_X); %#ok<SAGROW>
+    end
+    
+    figure(1);
+    semilogx(n_interpolation,a_vec_N(i,double2single_index(2,m)+1),'ok');
+    hold on;
+    semilogx(n_interpolation,a_vec_N(i,double2single_index(4,m)+1),'*k');
+    semilogx(n_interpolation,a_vec_N(i,double2single_index(6,m)+1),'^k');
+    semilogx(n_interpolation,a_vec_N(i,double2single_index(8,m)+1),'xk');
 end
+grid minor;
+xlabel('$n_{\textrm{interpolation}}$');
+ylabel('$a_{nm}$');
+ylim([0,1.5]);
+xlim([l_N,1e3]);
+title('Convergence of coefficients')
+legend({'$a_{20}$','$a_{40}$','$a_{60}$','$a_{80}$'},...
+        'Interpreter','latex',...
+        'Location', 'northeast');
+movegui('east')
+a_vec_N = a_vec_N(end,:);
+a_vec_X = a_vec_X(end,:);
 
 % find surface from zernike coef
 r_plot = 0:0.01:1;
@@ -99,7 +108,8 @@ Y_X = r_max_X*r.*cos(theta)';
 X = [X_N, fliplr(X_X)];
 Y = [Y_N, fliplr(Y_X)];
 Z = [Z_N, fliplr(Z_X)];
-
+xlabel('$x$');ylabel('$y$');zlabel('$z$');
+title('Mesh');
 mesh(X,Y,Z);
 shading interp
 zlim([18,22]);
