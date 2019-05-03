@@ -1,5 +1,6 @@
 %% Zernike coef fit
 % This code fits zernike polynomials through data and outputs the coefs.
+% Also plots the convergence of the coefficients.
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
