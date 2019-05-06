@@ -3,7 +3,7 @@
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
-% Last updated: 28-04-2019
+% Last updated: 6-05-2019
 
 % Detailed description:
 
@@ -65,7 +65,7 @@ plot(surface_interpolated_X,r_max_X*r_interpolated_X,'-r')
 
 % find coefficients
 m = 0;
-for n = 0:2:14
+for n = 0:2:6
     a_vec_N(double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_N,surface_interpolated_N); %#ok<SAGROW>
     a_vec_X(double2single_index(n,m)+1) = zernikecoef(n,m,r_interpolated_X,surface_interpolated_X); %#ok<SAGROW>
 end
@@ -88,11 +88,11 @@ n_theta = 5e1; % number mesh points theta direction
 r = linspace(0,1,n_r);
 theta = linspace(0,2*pi,n_theta);
 
-Z_N = a_vec_N(double2single_index(0,0)+1)*Zer(0,0,r,theta)+a_vec_N(double2single_index(2,0)+1)*Zer(2,0,r,theta)+a_vec_N(double2single_index(4,0)+1)*Zer(4,0,r,theta);
+Z_N = Zernike_surface(a_vec_N,r,theta);
 X_N = r_max_N*r.*sin(theta)';
 Y_N = r_max_N*r.*cos(theta)';
 
-Z_X = a_vec_X(double2single_index(0,0)+1)*Zer(0,0,r,theta)+a_vec_X(double2single_index(2,0)+1)*Zer(2,0,r,theta)+a_vec_X(double2single_index(4,0)+1)*Zer(4,0,r,theta);
+Z_X = Zernike_surface(a_vec_X,r,theta);
 X_X = r_max_X*r.*sin(theta)';
 Y_X = r_max_X*r.*cos(theta)';
 
@@ -103,7 +103,17 @@ Z = [Z_N, fliplr(Z_X)];
 mesh(X,Y,Z);
 shading interp
 zlim([18,22]);
-%%
+%% functions
+function Z = Zernike_surface(a_vec,r,theta)
+    Z = zeros(numel(r),numel(theta))';
+    i = 0;
+    for a = a_vec
+        [n,m] = single2double_index(i);
+        Z = Z + a*Zer(n,m,r,theta);
+        i = i + 1;
+    end
+end
+
 function rad = coef2surf(a_vec,r_plot)
     for j = 0:(length(a_vec)-1)
         [n,m] = single2double_index(j);
