@@ -1,9 +1,9 @@
-%% SMS_Method
-% Create intensity pattern.
+%% Intensity
+% Create intensity pattern and fits zernike polynomials.
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
-% Last updated: 28-04-2019
+% Last updated: 07-05-2019
 
 % Detailed description:
 
@@ -16,11 +16,11 @@ set(0,'defaultAxesTickLabelInterpreter','latex');
 folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\SMS Method/';
 
 %% Intensity
+
+% create artificial intensity pattern
 x = linspace(0,1,1e5);
 I = 1.2*normpdf(x,0.2,0.1) + 1.5*normpdf(x,0.8,0.2)+ 1.5*normpdf(x,0.5,0.1);
 
-plot(x,I,'k');
-hold on
 % find coefficients
 m = 0;
 for n = 0:2:20
@@ -28,24 +28,18 @@ for n = 0:2:20
 end
 
 rad = coef2surf(a_vec_N,x);
-plot(x,rad,'r')
 
-% plot mesh
-% figure(3);
-% n_r = 5e2; % number mesh points radial direction
-% n_theta = 2; % number mesh points theta direction
-% r_max_N = 1;
-% 
-% r = linspace(0,1,n_r);
-% theta = linspace(0,2*pi,n_theta);
-% 
-% Z = Zernike_surface(a_vec_N,r,theta);
-% X = r_max_N*r.*sin(theta)';
-% Y = r_max_N*r.*cos(theta)';
-% 
-% mesh(X,Y,Z);
 
-shading interp
+%% plotting
+figure(1); title('Output intensity')
+plot(x,I,'k');hold on;
+plot(x,rad,'r');
+
+xlabel('$x$');
+ylabel('$I$');
+legend({'Original','Zernike fit'},...
+        'Interpreter','latex',...
+        'Location', 'northeast');
 
 %% Functions
 function Z = Zernike_surface(a_vec,r,theta)

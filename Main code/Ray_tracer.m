@@ -1,9 +1,9 @@
-%% SMS_Method
-% Create intensity pattern.
+%% Ray tracer
+% Creates ray tracer for Zernike purposes
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
-% Last updated: 28-04-2019
+% Last updated: 07-05-2019
 
 % Detailed description:
 
@@ -15,32 +15,82 @@ set(0,'defaultAxesTickLabelInterpreter','latex');
 
 folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\SMS Method/';
 
-%% Intensity
+%% Initialise system
 
-% create artificial intensity pattern
-x = linspace(0,1,1e5);
-I = 1.2*normpdf(x,0.2,0.1) + 1.5*normpdf(x,0.8,0.2)+ 1.5*normpdf(x,0.5,0.1);
+% At x = xi, we place a lens with known zernike polynomials.
+% At x = xf, we place a screen and observe intensity.
 
-% find coefficients
-m = 0;
-for n = 0:2:20
-    a_vec_N(double2single_index(n,m)+1) = zernikecoef(n,m,x,I);
+xi = 0; % arbitrary units
+xf = 10; % arbitrary units
+
+lens = [-1,1]; % position of bottom and top of lens
+lens_middle = ( lens(2)-lens(1) ) / 2;
+
+%% Input
+% load coefficients for a lens
+loadfile = 'a_vec.mat';
+load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',loadfile),'a_vec_N');
+a_vec = a_vec_N;    % Rename variable for this script
+a_vec(1) = xi;       % Set height of lens to optical start
+clear a_vec_N
+
+%% Ray tracer
+number_of_rays = 1e2;
+
+% for plotting
+y_plot = linspace(lens(1),lens(2),number_of_rays);
+x_lens = coef2surf(a_vec,y_plot);
+
+rays_start = linspace(lens(2),lens(1),number_of_rays)';
+
+dy = zeros(number_of_rays,1);
+dy(1) =   x_lens(2)     - x_lens(1);
+dy(end) = x_lens(end-1) - x_lens(end);
+for i = 2: (number_of_rays-1)
+   dy(i) = ( x_lens(i+1)-x_lens(i-1) );
 end
+dx = ones(number_of_rays,1) * ( lens(1) - lens(2) ) / (number_of_rays - 1);
+dx(1) = dx(1)/2;
+dx(end) = dx(end)/2;
+normal = [-dx,dy];
+norm = sqrt( normal(:,1).^2 + normal(:,2).^2 );
+normal = normal ./ norm;
+%% plotting figure 1
+figure(1); title('Optical system'); hold on; movegui('center')
 
-rad = coef2surf(a_vec_N,x);
+% Plot optical axis
+plot([xi,xf],lens_middle*ones(1,2),'-k')
 
 
-% plot intensity pattern
-figure(1);
-plot(x,I,'k');hold on;
-plot(x,rad,'r');
+% % Plot lens % placeholder
+% plot(xi*ones(1,2),lens,':k')
 
+% Plot lens (real lens)
+plot(x_lens,y_plot,':k');
+plot(x_lens,-y_plot,':k');
+
+% Plot receiver plane
+plot(xf*ones(1,2),lens,'-k','LineWidth',10)
+
+% Plot boundaries
+plot([xi,xf],lens(1)*ones(1,2),'--k')
+plot([xi,xf],lens(2)*ones(1,2),'--k')
+
+xlim([xi-0.5,xf+0.5]);
+ylim([lens(1)-0.1,lens(2)+0.1]);
+
+%% Plotting figure 2
+figure(2); title('Lens'); hold on; movegui('east')
+
+% Plot lens
+plot(x_lens,y_plot,'-k');
+plot(x_lens,-y_plot,'-k');
+
+xlim([-0.5,0.5])
 xlabel('$x$');
-ylabel('$I$');
-legend({'Original','$Zernike fit'},...
-        'Interpreter','latex',...
-        'Location', 'northeast');
+ylabel('$y$');
 
+quiver(x_lens,y_plot,normal(:,1)',normal(:,2)')
 %% Functions
 function Z = Zernike_surface(a_vec,r,theta)
     Z = zeros(numel(r),numel(theta))';

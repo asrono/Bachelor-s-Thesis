@@ -103,6 +103,10 @@ Z = [Z_N, fliplr(Z_X)];
 mesh(X,Y,Z);
 shading interp
 zlim([18,22]);
+
+%% Save Zernike coefficients
+savefile = 'a_vec.mat';
+save(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',savefile),'a_vec_N');
 %% functions
 function Z = Zernike_surface(a_vec,r,theta)
     Z = zeros(numel(r),numel(theta))';
