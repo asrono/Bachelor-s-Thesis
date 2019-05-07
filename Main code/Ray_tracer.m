@@ -24,7 +24,7 @@ xi = 0; % arbitrary units
 xf = 10; % arbitrary units
 
 lens = [-1,1]; % position of bottom and top of lens
-lens_middle = ( lens(2)-lens(1) ) / 2;
+lens_middle = lens(1) + ( lens(2)-lens(1) ) / 2;
 
 %% Input
 % load coefficients for a lens
@@ -43,31 +43,40 @@ x_lens = coef2surf(a_vec,y_plot);
 
 rays_start = linspace(lens(2),lens(1),number_of_rays)';
 
-dy = zeros(number_of_rays,1);
-dy(1) =   x_lens(2)     - x_lens(1);
-dy(end) = x_lens(end-1) - x_lens(end);
+% calculate normal vectors at interface
+dx = zeros(number_of_rays,1);
+dx(1) =   x_lens(2)     - x_lens(1);
+dx(end) = x_lens(end) - x_lens(end-1);
 for i = 2: (number_of_rays-1)
-   dy(i) = ( x_lens(i+1)-x_lens(i-1) );
+   dx(i) = x_lens(i+1)-x_lens(i-1);
 end
-dx = ones(number_of_rays,1) * ( lens(1) - lens(2) ) / (number_of_rays - 1);
-dx(1) = dx(1)/2;
-dx(end) = dx(end)/2;
-normal = [-dx,dy];
+dy = ones(number_of_rays,1) * 2 *( lens(1) - lens(2) ) / (number_of_rays - 1);
+dy(1) = dy(1)/2;
+dy(end) = dy(end)/2;
+
+normal = [-dy,dx];
 norm = sqrt( normal(:,1).^2 + normal(:,2).^2 );
-normal = normal ./ norm;
+normal = fliplr((normal ./ norm)');
+
+% calculate rays after transmission
+n_i = 1;
+n_r = 1.6;
+v_i = [0,1];
+for i = 1:number_of_rays
+    v_r(:,i) = find_reflected_ray(v_i,n_i,n_r,normal(:,i)');
+end
+
 %% plotting figure 1
 figure(1); title('Optical system'); hold on; movegui('center')
 
 % Plot optical axis
 plot([xi,xf],lens_middle*ones(1,2),'-k')
 
-
 % % Plot lens % placeholder
 % plot(xi*ones(1,2),lens,':k')
 
 % Plot lens (real lens)
 plot(x_lens,y_plot,':k');
-plot(x_lens,-y_plot,':k');
 
 % Plot receiver plane
 plot(xf*ones(1,2),lens,'-k','LineWidth',10)
@@ -76,21 +85,30 @@ plot(xf*ones(1,2),lens,'-k','LineWidth',10)
 plot([xi,xf],lens(1)*ones(1,2),'--k')
 plot([xi,xf],lens(2)*ones(1,2),'--k')
 
+% Plot normal
+quiver(x_lens,y_plot,normal(1,:),normal(2,:));
+
 xlim([xi-0.5,xf+0.5]);
 ylim([lens(1)-0.1,lens(2)+0.1]);
+axis equal
 
 %% Plotting figure 2
 figure(2); title('Lens'); hold on; movegui('east')
 
 % Plot lens
 plot(x_lens,y_plot,'-k');
-plot(x_lens,-y_plot,'-k');
+
+% Plot normals on lens
+quiv = quiver(x_lens,y_plot,fliplr(-dy'),fliplr(dx'));
+quiv.Color = 'black';
+quiv.LineWidth = 1;
+quiv.MaxHeadSize = 0.8;
 
 xlim([-0.5,0.5])
 xlabel('$x$');
 ylabel('$y$');
 
-quiver(x_lens,y_plot,normal(:,1)',normal(:,2)')
+axis equal
 %% Functions
 function Z = Zernike_surface(a_vec,r,theta)
     Z = zeros(numel(r),numel(theta))';
@@ -176,4 +194,16 @@ end
 function [n,m] = single2double_index(j)
     n = ceil( (-3 + (9 + 8*j)^(1/2)) / 2 );
     m = 2*j - n * (n+2);
+end
+
+function v_r = find_reflected_ray(v_i,n_i,n_r,normal)
+    if dot(v_i,normal) < 0
+        normal = -normal;
+        c = -1;
+    else
+        c = 1;
+    end
+    n = n_i/n_r;
+    v_r = n*v_i+(n*dot(normal,v_i)-sqrt(1-n^2*(1-dot(v_i,normal)))) * normal*c;
+    v_r = v_r./norm(v_r);
 end
