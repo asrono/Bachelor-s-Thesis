@@ -13,7 +13,7 @@ set(0,'defaulttextinterpreter','latex');
 set(0,'defaultaxesfontsize',14);
 set(0,'defaultAxesTickLabelInterpreter','latex'); 
 
-folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\SMS Method/';
+folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Ray Tracer\';
 
 %% Initialise system
 
@@ -32,6 +32,8 @@ loadfile = 'a_vec.mat';
 load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',loadfile),'a_vec_N');
 a_vec = a_vec_N;    % Rename variable for this script
 a_vec(1) = xi;       % Set height of lens to optical start
+% a_vec = zeros(1,25);
+% a_vec(5) = 0.2;
 clear a_vec_N
 
 %% Ray tracer
@@ -59,13 +61,19 @@ norm = sqrt( normal(:,1).^2 + normal(:,2).^2 );
 normal = fliplr((normal ./ norm)');
 
 % calculate rays after transmission
-n_i = 1;
-n_r = 1.6;
-v_i = [0,1];
+n_i = 1.6;
+n_r = 1.0;
+v_i = [1,0];
+v_r = zeros(2,number_of_rays);
 for i = 1:number_of_rays
     v_r(:,i) = find_reflected_ray(v_i,n_i,n_r,normal(:,i)');
 end
 
+
+a = v_r(2,:)./v_r(1,:);
+b = y_plot - a.*x_lens;
+
+intensity = a.*xf + b;
 %% plotting figure 1
 figure(1); title('Optical system'); hold on; movegui('center')
 
@@ -75,9 +83,6 @@ plot([xi,xf],lens_middle*ones(1,2),'-k')
 % % Plot lens % placeholder
 % plot(xi*ones(1,2),lens,':k')
 
-% Plot lens (real lens)
-plot(x_lens,y_plot,':k');
-
 % Plot receiver plane
 plot(xf*ones(1,2),lens,'-k','LineWidth',10)
 
@@ -85,12 +90,32 @@ plot(xf*ones(1,2),lens,'-k','LineWidth',10)
 plot([xi,xf],lens(1)*ones(1,2),'--k')
 plot([xi,xf],lens(2)*ones(1,2),'--k')
 
-% Plot normal
-quiver(x_lens,y_plot,normal(1,:),normal(2,:));
+% Plot rays
+quiv2 = quiver(x_lens,y_plot,v_r(1,:),v_r(2,:),600);
+quiv2.Color = 'red';
+quiv2.LineWidth = 0.01;
+quiv2.MaxHeadSize = 0;
 
-xlim([xi-0.5,xf+0.5]);
+% Plot incoming rays
+quiv2 = quiver(x_lens,y_plot,-ones(1,number_of_rays),zeros(1,number_of_rays),60);
+quiv2.Color = 'red';
+quiv2.LineWidth = 0.01;
+quiv2.MaxHeadSize = 0;
+
+
+% Plot lens (real lens)
+plot(x_lens,y_plot,'-k');
+
+xlabel('$x$')
+ylabel('$y$')
+xlim([xi-2,xf+0.5]);
 ylim([lens(1)-0.1,lens(2)+0.1]);
-axis equal
+% axis equal
+
+% Save figure
+figure_name = 'Ray_tracer1';
+filetype    = '.png';
+print(figure(1), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Plotting figure 2
 figure(2); title('Lens'); hold on; movegui('east')
@@ -98,17 +123,29 @@ figure(2); title('Lens'); hold on; movegui('east')
 % Plot lens
 plot(x_lens,y_plot,'-k');
 
-% Plot normals on lens
-quiv = quiver(x_lens,y_plot,fliplr(-dy'),fliplr(dx'));
-quiv.Color = 'black';
-quiv.LineWidth = 1;
-quiv.MaxHeadSize = 0.8;
+% % Plot normals on lens
+% quiv = quiver(x_lens,y_plot,normal(1,:),normal(2,:));
+% quiv.Color = 'black';
+% quiv.LineWidth = 1;
+% quiv.MaxHeadSize = 0.5;
 
 xlim([-0.5,0.5])
 xlabel('$x$');
 ylabel('$y$');
 
 axis equal
+
+%% Plotting figure 3
+figure(3); title(strcat('Intensity at $x = x_f = ',string(xf),'$.')); hold on; movegui('west')
+
+histogram(intensity,linspace(lens(1),lens(2),number_of_rays/2))
+xlim([lens(1),lens(2)])
+ylabel('Counts (\#rays)')
+xlabel('$x$')
+% Save figure
+figure_name = 'ray_tracer3';
+filetype    = '.png';
+print(figure(3), '-dpng', strcat(folder,figure_name,filetype))
 %% Functions
 function Z = Zernike_surface(a_vec,r,theta)
     Z = zeros(numel(r),numel(theta))';
