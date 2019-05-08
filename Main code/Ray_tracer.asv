@@ -13,7 +13,7 @@ set(0,'defaulttextinterpreter','latex');
 set(0,'defaultaxesfontsize',14);
 set(0,'defaultAxesTickLabelInterpreter','latex'); 
 
-folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\SMS Method/';
+folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Ray Tracer\';
 
 %% Initialise system
 
@@ -21,7 +21,7 @@ folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\SMS Metho
 % At x = xf, we place a screen and observe intensity.
 
 xi = 0; % arbitrary units
-xf = 10; % arbitrary units
+xf = 5; % arbitrary units
 
 lens = [-1,1]; % position of bottom and top of lens
 lens_middle = lens(1) + ( lens(2)-lens(1) ) / 2;
@@ -32,51 +32,77 @@ loadfile = 'a_vec.mat';
 load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',loadfile),'a_vec_N');
 a_vec = a_vec_N;    % Rename variable for this script
 a_vec(1) = xi;       % Set height of lens to optical start
+% a_vec = zeros(1,25);
+% a_vec(5) = 0.2;
 clear a_vec_N
 
 %% Ray tracer
-number_of_rays = 1e2;
+% for plotting use 2e2
+number_of_rays = 2e2;
 
 % for plotting
 y_plot = linspace(lens(1),lens(2),number_of_rays);
 x_lens = coef2surf(a_vec,y_plot);
+x_lens_deriv = coef2surf_deriv(a_vec,y_plot);
 
 rays_start = linspace(lens(2),lens(1),number_of_rays)';
 
+%% Numerical differentiator
+% % calculate normal vectors at interface
+% dx = zeros(number_of_rays,1);
+% dx(1) =   x_lens(2)     - x_lens(1);
+% dx(end) = x_lens(end) - x_lens(end-1);
+% for i = 2: (number_of_rays-1)
+%    dx(i) = x_lens(i+1)-x_lens(i-1);
+% end
+% dy = ones(number_of_rays,1) * 2 *( lens(1) - lens(2) ) / (number_of_rays - 1);
+% dy(1) = dy(1)/2;
+% dy(end) = dy(end)/2;
+% dy = -dy;
+%% Analytical differentiator
 % calculate normal vectors at interface
-dx = zeros(number_of_rays,1);
-dx(1) =   x_lens(2)     - x_lens(1);
-dx(end) = x_lens(end) - x_lens(end-1);
-for i = 2: (number_of_rays-1)
-   dx(i) = x_lens(i+1)-x_lens(i-1);
-end
-dy = ones(number_of_rays,1) * 2 *( lens(1) - lens(2) ) / (number_of_rays - 1);
-dy(1) = dy(1)/2;
-dy(end) = dy(end)/2;
-
-normal = [-dy,dx];
+dx = flipud(-coef2surf_deriv(a_vec,y_plot)');
+dy = ones(number_of_rays,1);
+ 
+normal = [dy,-dx];
 norm = sqrt( normal(:,1).^2 + normal(:,2).^2 );
-normal = fliplr((normal ./ norm)');
-size
+normal = (normal ./ norm)';
+
 % calculate rays after transmission
-n_i = 1;
-n_r = 1.6;
-v_i = [0,1];
+n_i = 1.6;
+n_r = 1.0;
+v_i = [1,0];
+v_r = zeros(2,number_of_rays);
 for i = 1:number_of_rays
-    v_r = find_reflected_ray(v_i,n_i,n_r,normal(:,1))
+    v_r(:,i) = find_reflected_ray(v_i,n_i,n_r,normal(:,i)');
 end
 
+
+a = v_r(2,:)./v_r(1,:);
+b = y_plot - a.*x_lens;
+
+intensity = a.*xf + b;
 %% plotting figure 1
 figure(1); title('Optical system'); hold on; movegui('center')
 
+if number_of_rays < 2e2+1
+% Plot rays
+quiv2 = quiver(x_lens,y_plot,v_r(1,:),v_r(2,:),600);
+quiv2.Color = 'red';
+quiv2.LineWidth = 0.01;
+quiv2.MaxHeadSize = 0;
+
+% Plot incoming rays
+quiv2 = quiver(x_lens,y_plot,-ones(1,number_of_rays),zeros(1,number_of_rays),60);
+quiv2.Color = 'red';
+quiv2.LineWidth = 0.01;
+quiv2.MaxHeadSize = 0;
+end
 % Plot optical axis
-plot([xi,xf],lens_middle*ones(1,2),'-k')
+plot([xi-2,xf],lens_middle*ones(1,2),'-k')
 
 % % Plot lens % placeholder
 % plot(xi*ones(1,2),lens,':k')
-
-% Plot lens (real lens)
-plot(x_lens,y_plot,':k');
 
 % Plot receiver plane
 plot(xf*ones(1,2),lens,'-k','LineWidth',10)
@@ -85,30 +111,69 @@ plot(xf*ones(1,2),lens,'-k','LineWidth',10)
 plot([xi,xf],lens(1)*ones(1,2),'--k')
 plot([xi,xf],lens(2)*ones(1,2),'--k')
 
-% Plot normal
-quiver(x_lens,y_plot,normal(1,:),normal(2,:));
+% Plot lens (real lens)
+plot(x_lens,y_plot,'-k');
 
-xlim([xi-0.5,xf+0.5]);
+xlabel('$x$')
+ylabel('$y$')
+xlim([xi-2,xf+0.5]);
 ylim([lens(1)-0.1,lens(2)+0.1]);
-axis equal
+% axis equal
+
+% Save figure
+figure_name = 'Ray_tracer1';
+filetype    = '.png';
+print(figure(1), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Plotting figure 2
 figure(2); title('Lens'); hold on; movegui('east')
 
 % Plot lens
 plot(x_lens,y_plot,'-k');
+plot(x_lens_deriv,y_plot,'-r');
 
+if number_of_rays < 2e2+1
 % Plot normals on lens
-quiv = quiver(x_lens,y_plot,fliplr(-dy'),fliplr(dx'));
+quiv = quiver(x_lens,y_plot,normal(1,:),normal(2,:));
 quiv.Color = 'black';
 quiv.LineWidth = 1;
-quiv.MaxHeadSize = 0.8;
+quiv.MaxHeadSize = 0.5;
+end
 
 xlim([-0.5,0.5])
 xlabel('$x$');
 ylabel('$y$');
 
+grid minor
 axis equal
+
+%% Plotting figure 3
+figure(3); title(strcat('Intensity at $x = x_f = ',string(xf),'$.')); hold on; movegui('west')
+
+histogram(intensity,linspace(lens(1),lens(2),200))
+xlim([lens(1),lens(2)])
+ylabel('Counts (\#rays)')
+xlabel('$x$')
+% Save figure
+figure_name = 'ray_tracer3';
+filetype    = '.png';
+print(figure(3), '-dpng', strcat(folder,figure_name,filetype))
+
+%% Plotting figure 4
+x = linspace(0,xf,10)';
+y = a.*x + b;
+t = 
+
+binNo = 100;                     % number of bins for the histogram
+bins  = zeros(size(t,1),binNo); % preallocation 
+% 'FOR' loop to get the histogram values for each photo
+for i=1:size(t,1)
+h = histogram(t(i,:),...
+    binNo);
+bins(i,:) = h.Values;
+end
+% plot histogram bins as 3D bar-chart
+b = bar3(bins);
 %% Functions
 function Z = Zernike_surface(a_vec,r,theta)
     Z = zeros(numel(r),numel(theta))';
@@ -124,6 +189,14 @@ function rad = coef2surf(a_vec,r_plot)
     for j = 0:(length(a_vec)-1)
         [n,m] = single2double_index(j);
         rad_mat(j+1,:) = a_vec(j+1)*R(n,m,r_plot);
+    end
+    rad = sum(rad_mat,1);
+end
+
+function rad = coef2surf_deriv(a_vec,r_plot)
+    for j = 0:(length(a_vec)-1)
+        [n,m] = single2double_index(j);
+        rad_mat(j+1,:) = a_vec(j+1)*R_deriv(n,m,r_plot);
     end
     rad = sum(rad_mat,1);
 end
@@ -153,6 +226,24 @@ function radial = R(n,m,r)
     bot = (n+m)/2;
     for s = 0 : top
         x(s+1,:) =  (-1)^s*factorial(n-s)/(factorial(s)*factorial(bot-s)*factorial(top-s))*r.^(n-2*s);
+    end
+    if top ~= 0
+    radial = sum(x);
+    else
+    radial = x;
+    end
+end
+
+function radial = R_deriv(n,m,r)
+    radial = (r.^2.*(n+2)+m)./(r.*(1-r.^2)).*R(n,m,r) - (n+m+2)./(1-r.^2).*R(n+1,m+1,r);
+end
+
+function radial = R_deriv2(n,m,r)
+    m = abs(m);
+    top = (n-m)/2;
+    bot = (n+m)/2;
+    for s = 0 : top
+        x(s+1,:) =  (-1)^s*factorial(n-s)/(factorial(s)*factorial(bot-s)*factorial(top-s))*(n-2*s)*r.^(n-2*s-1);
     end
     if top ~= 0
     radial = sum(x);
