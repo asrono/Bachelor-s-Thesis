@@ -3,7 +3,7 @@
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
-% Last updated: 07-05-2019
+% Last updated: 14-05-2019
 
 % Detailed description:
 
@@ -26,6 +26,14 @@ xf = 10; % arbitrary units
 lens = [-1,1]; % position of bottom and top of lens
 lens_middle = lens(1) + ( lens(2)-lens(1) ) / 2;
 
+
+%% Settings
+% for plotting use 2e2
+number_of_rays = 2e2;
+
+Der_ana = true; % true for analytical derivative calculation, false for numerical
+plot_hist_3D = false; % plotting the 3D histogram (computationally heavy)
+
 %% Input
 % load coefficients for a lens
 loadfile = 'a_vec.mat';
@@ -39,9 +47,6 @@ a_vec(12) = 0.1;
 clear a_vec_N
 
 %% Ray tracer
-% for plotting use 2e2
-number_of_rays = 1e6;
-
 % for plotting
 y_plot = linspace(lens(1),lens(2),number_of_rays);
 x_lens = coef2surf(a_vec,y_plot);
@@ -50,22 +55,26 @@ x_lens_deriv = coef2surf_deriv(a_vec,y_plot);
 rays_start = linspace(lens(2),lens(1),number_of_rays)';
 
 %% Numerical differentiator
-% % calculate normal vectors at interface
-% dx = zeros(number_of_rays,1);
-% dx(1) =   x_lens(2)     - x_lens(1);
-% dx(end) = x_lens(end) - x_lens(end-1);
-% for i = 2: (number_of_rays-1)
-%    dx(i) = x_lens(i+1)-x_lens(i-1);
-% end
-% dy = ones(number_of_rays,1) * 2 *( lens(1) - lens(2) ) / (number_of_rays - 1);
-% dy(1) = dy(1)/2;
-% dy(end) = dy(end)/2;
-% dy = -dy;
+if Der_ana == false
+% calculate normal vectors at interface
+dx = zeros(number_of_rays,1);
+dx(1) =   x_lens(2)     - x_lens(1);
+dx(end) = x_lens(end) - x_lens(end-1);
+for i = 2: (number_of_rays-1)
+   dx(i) = x_lens(i+1)-x_lens(i-1);
+end
+dy = ones(number_of_rays,1) * 2 *( lens(1) - lens(2) ) / (number_of_rays - 1);
+dy(1) = dy(1)/2;
+dy(end) = dy(end)/2;
+dy = -dy;
+end
 %% Analytical differentiator
+if Der_ana == true
 % calculate normal vectors at interface
 dx = flipud(-coef2surf_deriv(a_vec,y_plot)');
 dy = ones(number_of_rays,1);
- 
+end
+
 normal = [dy,-dx];
 norm = sqrt( normal(:,1).^2 + normal(:,2).^2 );
 normal = (normal ./ norm)';
@@ -162,6 +171,7 @@ filetype    = '.png';
 print(figure(3), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Plotting figure 4
+if plot_hist_3D == true
 figure(4);
 number_x = 5e2;
 x = linspace(0,xf,number_x)';
@@ -198,6 +208,10 @@ axis tight
 xlabel('$x$')
 ylabel('$y$')
 zlabel('Counts')
+end
+
+%% End
+disp('Done!')
 %% Functions
 function Z = Zernike_surface(a_vec,r,theta)
     Z = zeros(numel(r),numel(theta))';

@@ -1,9 +1,9 @@
-%% Ray tracer
-% Creates ray tracer for Zernike purposes
+%% Ray tracer Zernike
+% Creates ray tracer for Zernike purposes and laplacian magic window
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
-% Last updated: 07-05-2019
+% Last updated: 14-05-2019
 
 % Detailed description:
 
@@ -13,7 +13,7 @@ set(0,'defaulttextinterpreter','latex');
 set(0,'defaultaxesfontsize',14);
 set(0,'defaultAxesTickLabelInterpreter','latex'); 
 
-folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Ray Tracer\';
+folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Ray Tracer Zernike\';
 
 %% Initialise system
 
@@ -21,29 +21,30 @@ folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Ray Trace
 % At x = xf, we place a screen and observe intensity.
 
 xi = 0; % arbitrary units
-xf = 10; % arbitrary units
+xf = 1/2; % arbitrary units
 
 lens = [-1,1]; % position of bottom and top of lens
-lens_middle = lens(1) + ( lens(2)-lens(1) ) / 2;
+lens_middle = lens(1) + ( lens(2)-lens(1) );
 
 
 %% Settings
 % for plotting use 2e2
-number_of_rays = 2e2;
+number_of_rays = 1e4;
 
 Der_ana = true; % true for analytical derivative calculation, false for numerical
 plot_hist_3D = false; % plotting the 3D histogram (computationally heavy)
 
 %% Input
 % load coefficients for a lens
-loadfile = 'a_vec.mat';
+loadfile = 'a_vec_Berry.mat';
 load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',loadfile),'a_vec_N');
 a_vec = a_vec_N;    % Rename variable for this script
 a_vec(1) = xi;       % Set height of lens to optical start
-a_vec = zeros(1,25);
-a_vec(12) = 0.1;
-% a_vec(13) = 0.05;
-% a_vec(25) = 0.01;
+a_vec = a_vec/2;
+% a_vec = zeros(1,25);
+% a_vec(12) = 0.01;
+% a_vec(13) = 0.02;
+% % a_vec(25) = 0.01;
 clear a_vec_N
 
 %% Ray tracer
@@ -127,7 +128,7 @@ plot(x_lens,y_plot,'-k');
 
 xlabel('$x$')
 ylabel('$y$')
-xlim([xi-2,xf+0.5]);
+xlim([xi-0.1,xf+0.5]);
 ylim([lens(1)-0.1,lens(2)+0.1]);
 % axis equal
 
@@ -161,7 +162,7 @@ axis equal
 %% Plotting figure 3
 figure(3); title(strcat('Intensity at $x = x_f = ',string(xf),'$.')); hold on; movegui('west')
 
-histogram(intensity,linspace(lens(1),lens(2),200))
+h1 = histogram(intensity,linspace(lens(1),lens(2),100));
 xlim([lens(1),lens(2)])
 ylabel('Counts (\#rays)')
 xlabel('$x$')
@@ -169,6 +170,28 @@ xlabel('$x$')
 figure_name = 'ray_tracer3';
 filetype    = '.png';
 print(figure(3), '-dpng', strcat(folder,figure_name,filetype))
+
+figure(5);
+midpoints = conv(h1.BinEdges, [0.5 0.5], 'valid');
+counts = h1.BinCounts;
+plot(midpoints,counts,'or'); hold on 
+% find coefficients
+m = 0;
+midpoints2 = midpoints(round(end/2):end);
+counts2 = counts(round(end/2):end)+ 0.00001*rand(1,length(counts(round(end/2):end)));
+plot(midpoints2,counts2,'ok')
+% set amount of interpolated points
+n_interpolation = 1e5; % recommended > 1e3
+% get interpolated points
+[midpoints3, counts3] = ...
+    interpol(counts2, midpoints2, 0,1,n_interpolation);
+plot(midpoints3,counts3,'.g')
+for n = 0:2:20
+    a_vec_2(double2single_index(n,m)+1) = zernikecoef(n,m,midpoints2,counts2); %#ok<SAGROW>
+end
+plot(midpoints3,coef2surf(a_vec_2,midpoints3),'-r')
+figure(3);
+
 
 %% Plotting figure 4
 if plot_hist_3D == true
@@ -209,6 +232,9 @@ xlabel('$x$')
 ylabel('$y$')
 zlabel('Counts')
 end
+
+%% End
+disp('Done!')
 %% Functions
 function Z = Zernike_surface(a_vec,r,theta)
     Z = zeros(numel(r),numel(theta))';
