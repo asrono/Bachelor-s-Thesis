@@ -57,10 +57,13 @@ plot(rplot,surface2,'-r');
 surface3 = coef2surf_laplacian(a_vec,rplot);
 plot(rplot,surface3,'-m');
 
-% surface4 = diff(surface,2)/h^2 + 1 ./ rplot(1:end-2) .* diff(surface(1:end-1))/h;
-% plot(rplot(1:end-2),surface4,'-g');
+surface4 = coef2surf_laplacian2(a_vec,rplot);
+plot(rplot,surface4,'-g');
 
-legend({'Surface','Derivative','Laplacian'},...
+surface5 = diff(surface,2)/h^2 + 1 ./ rplot(1:end-2) .* diff(surface(1:end-1))/h;
+plot(rplot(1:end-2),surface5,'-k');
+ylim([-5,5])
+legend({'Surface','Derivative','Laplacian','Laplacian2','Laplacian Numerical'},...
         'Interpreter','latex',...
         'Location', 'northeast');
     
@@ -71,7 +74,13 @@ I = 1 - (n - 1)*z'.*coef2surf_laplacian(a_vec,rplot);
 
 I2 = 1./ (1 + (n - 1)*z'.*coef2surf_laplacian(a_vec,rplot));
 figure(2);
-plot(rplot,I(end,:));
+plot(rplot,I(end,:),'g'); hold on;
+plot(rplot,I2(end,:),'r');
+plot(rplot,I2(end,:)-I(end,:),'k');
+legend({'linear approx','non linear approx','diff'},...
+        'Interpreter','latex',...
+        'Location', 'northeast');
+
 figure(3);
 surf(I);
 shading interp
@@ -79,6 +88,8 @@ shading interp
 figure(4);
 surf(I2);
 shading interp
+
+figure(1)
 %% End
 disp('Done!')
 %% Functions
@@ -128,7 +139,13 @@ function rad = coef2surf_laplacian(a_vec,rplot)
     rad = coef2surf_deriv2_num(a_vec,rplot) + 1./rplot .* coef2surf_deriv_num(a_vec,rplot);
 end
 
-
+function rad = coef2surf_laplacian2(a_vec,r_plot)
+    for j = 0:(length(a_vec)-1)
+        [n,m] = single2double_index(j);
+        rad_mat(j+1,:) = a_vec(j+1)*R_laplacian(n,m,r_plot);
+    end
+    rad = sum(rad_mat,1);
+end
 function [surface, r, r_max] = extract_points(lens)
     surface(1,:) = lens(1,:,:); % get scalar values for lens surface
     r_max = max(lens(2,:,:));   % find maximum radius element
@@ -167,7 +184,7 @@ function radial = R_deriv(n,m,r)
 end
 
 function radial = R_laplacian(n,m,r)
-    c0 = 1./(r.^2.*(1-r.^2));
+    c0 = 1./(r.^2.*(1-r.^2).^2);
     c1 = r.^6*(n+8) + r.^4*(n+3*m+2+(n+2)^2) + r.^2*(n+3*m+2*n*m+2) + m*(m+1);
     c2 = -(n+m+2)*(-r.^3 + r.^2*(2*n+7) + r + 2*m+1);
     c3 = (n+m+2)*r.^2*(n+m+4);
