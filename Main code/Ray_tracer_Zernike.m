@@ -15,13 +15,13 @@ set(0,'defaultAxesTickLabelInterpreter','latex');
 
 folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Ray Tracer Zernike\';
 
-%% Initialise system
+%% Initialise systema
 
 % At x = xi, we place a lens with known zernike polynomials.
 % At x = xf, we place a screen and observe intensity.
 
 xi = 0; % arbitrary units
-xf = 1/2; % arbitrary units
+xf = 0.5; % arbitrary units
 
 lens = [-1,1]; % position of bottom and top of lens
 lens_middle = lens(1) + ( lens(2)-lens(1) );
@@ -32,7 +32,7 @@ lens_middle = lens(1) + ( lens(2)-lens(1) );
 number_of_rays = 1e4;
 
 Der_ana = true; % true for analytical derivative calculation, false for numerical
-plot_hist_3D = false; % plotting the 3D histogram (computationally heavy)
+plot_hist_3D = true; % plotting the 3D histogram (computationally heavy)
 
 %% Input
 % load coefficients for a lens
