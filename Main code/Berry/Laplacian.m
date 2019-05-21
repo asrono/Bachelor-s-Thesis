@@ -3,7 +3,7 @@
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
-% Last updated: 14-05-2019
+% Last updated: 21-05-2019
 
 % Detailed description:
 
@@ -32,15 +32,17 @@ lens_middle = lens(1) + ( lens(2)-lens(1) );
 
 %% Input
 % load coefficients for a lens
-loadfile = 'a_vec_Berry.mat';
+% loadfile = 'a_vec_Berry.mat';
+loadfile = 'a_vec.mat';
+
 load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',loadfile),'a_vec_N');
 a_vec = a_vec_N;    % Rename variable for this script
 a_vec(1) = xi;       % Set height of lens to optical start
 a_vec = a_vec/2;
 % a_vec = zeros(1,25);
-% a_vec(12) = 0.01;
+% a_vec(9) = 0.0001;
 % a_vec(13) = 0.02;
-% % a_vec(25) = 0.01;
+% a_vec(25) = 0.01;
 clear a_vec_N
 
 %% Plotting
@@ -61,16 +63,16 @@ surface4 = coef2surf_laplacian2(a_vec,rplot);
 plot(rplot,surface4,'-g');
 
 surface5 = diff(surface,2)/h^2 + 1 ./ rplot(1:end-2) .* diff(surface(1:end-1))/h;
-plot(rplot(1:end-2),surface5,'-k');
+plot(rplot(1:end-2),surface5,':k');
 ylim([-5,5])
-legend({'Surface','Derivative','Laplacian','Laplacian2','Laplacian Numerical'},...
+legend({'Surface','Derivative','Laplacian (analytical different basis)','Laplacian (analytical same basis)','Laplacian Numerical'},...
         'Interpreter','latex',...
         'Location', 'northeast');
     
 %% Find Intensity
 z = linspace(0,0.5,1e3);
 n = 1.6;
-I = 1 - (n - 1)*z'.*coef2surf_laplacian(a_vec,rplot);
+I = 1 - (n - 1)*z'.*coef2surf_laplacian2(a_vec,rplot);
 
 I2 = 1./ (1 + (n - 1)*z'.*coef2surf_laplacian(a_vec,rplot));
 figure(2);
@@ -184,11 +186,45 @@ function radial = R_deriv(n,m,r)
 end
 
 function radial = R_laplacian(n,m,r)
+%     c0 = 1./(r.^2.*(1-r.^2).^2);
+% %     c1 = r.^6*(n+8) + r.^4*(n+3*m+2+(n+2)^2) + r.^2*(n+3*m+2*n*m+2) + m*(m+1);
+%     c1 = r.^4*(n+2)*(n+1) + r.^2*((n+2)*(2+2*m)+3*m) + m^2;
+%     c2 = -(n+m+2)*(-r.^3 + r.^2*(2*n+7) + r + 2*m+1);
+%     c3 = (n+m+2)*r.^2*(n+m+4);
+%     radial = c0 .* (c1.*R(n,m,r) + c2.*R(n+1,m+1,r) + c3.*R(n+2,m+2,r));
+
+%     radial = (m*(3*r.^2-1)+(n+2)*(r.^2+1).*r.^2)./(r.^2.*(1-r.^2).^2).*R(n,m,r)+...
+%         (r.^2*(n+2)+m)./(r.*(1-r.^2)).*((r.^2*(n+2)+m)./(r.*(1-r.^2)).*R(n,m,r)-(n+m+2)./(1-r.^2).*R(n+1,m+1,r))-...
+%         2*r*(n+m+2)./(1-r.^2).^2.*R(n+1,m+1,r) -...
+%         (n+m+2)./(1-r.^2).*((r.^2*(n+3)+m+1)./(r.*(1-r.^2)).*R(n+1,m+1,r)-(n+m+4)./(1-r.^2).*R(n+2,m+2,r))+...
+%         ((r.^2*(n+2)+m)./(r.^2.*(1-r.^2)).*R(n,m,r)-(n+m+2)./(r.*(1-r.^2)).*R(n+1,m+1,r));
+
+%     c0 = 1./(r.^2.*(1-r.^2).^2);
+%     radial = c0 .* (...
+%         R(n  ,m  ,r).*(m*(3*r.^2-1)+(n+2)*(1+r.^2).*r.^2+(r.^2*(n+2)+m).^2)-...
+%         R(n+1,m+1,r).*(r.*(r.^2*(n+2)+m)*(n+m+2)+2*r.^3*(n+m+2)+r.*(n+m+2).*(r.^2*(n+3)+m+1))+...
+%         R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) )+...
+%         ((r.^2*(n+2)+m)./(r.^2.*(1-r.^2)).*R(n,m,r)-(n+m+2)./(r.*(1-r.^2)).*R(n+1,m+1,r));
+
+%     c0 = 1./(r.^2.*(1-r.^2).^2);
+%     radial = c0 .* (...
+%         R(n  ,m  ,r).*(r.^4*(n+2)*(n+3)+r.^2*(m*(2*n+7)+n+2)+m*(m-1))-...
+%         R(n+1,m+1,r).*((n+m+2)*r.*(r.^2*(2*n+7)+2*m+1))+...
+%         R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) )+...
+%         ((r.^2*(n+2)+m)./(r.^2.*(1-r.^2)).*R(n,m,r)-(n+m+2)./(r.*(1-r.^2)).*R(n+1,m+1,r));
+   
+%     c0 = 1./(r.^2.*(1-r.^2).^2);
+%     radial = c0 .* (...
+%         R(n  ,m  ,r).*(r.^4*(n+2)*(n+3)+r.^2*(m*(2*n+7)+n+2)+m*(m-1)+(1-r.^2).*(r.^2*(n+2)+m))-...
+%         R(n+1,m+1,r).*((n+m+2)*r.*(r.^2*(2*n+7)+2*m+1+(1-r.^2)))+...
+%         R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) );
+
     c0 = 1./(r.^2.*(1-r.^2).^2);
-    c1 = r.^6*(n+8) + r.^4*(n+3*m+2+(n+2)^2) + r.^2*(n+3*m+2*n*m+2) + m*(m+1);
-    c2 = -(n+m+2)*(-r.^3 + r.^2*(2*n+7) + r + 2*m+1);
-    c3 = (n+m+2)*r.^2*(n+m+4);
-    radial = c0 .* (c1.*R(n,m,r) + c2.*R(n+1,m+1,r) + c3.*R(n+2,m+2,r));
+    radial = c0 .* (...
+        R(n  ,m  ,r).*(r.^4*(n+2)^2+2*r.^2*(m*(n+3)+n+2)+m^2)-...
+        R(n+1,m+1,r).*(n+m+2).*r.*(r.^2*(2*n+6)+2*m+2)+...
+        R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) );
+    
 end
 
 function radial = R_deriv_num(n,m,r)
