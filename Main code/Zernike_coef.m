@@ -141,8 +141,9 @@ function zernike = Zer(n,m,r,theta)
 end
 
 function a = zernikecoef(n,m,r,f)
-    N_nm = 2*(1) / (1 + eq(m,0) );
-    norm = trapz(r,r.*R(n,m,r).*R(n,m,r)*N_nm);
+%     N_nm = 2*(1) / (1 + eq(m,0) );
+%     norm = trapz(r,r.*R(n,m,r).*R(n,m,r)*N_nm);
+    norm = 1/(2*(n+1));
     int = trapz(r,R(n,m,r).*f.*r);
     a = int/norm;
 end

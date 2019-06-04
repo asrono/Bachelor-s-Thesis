@@ -33,7 +33,7 @@ lens_middle = lens(1) + ( lens(2)-lens(1) );
 %% Input
 % load coefficients for a lens
 % loadfile = 'a_vec_Berry.mat';
-loadfile = 'a_vec.mat';
+loadfile = 'a_vec_Berry.mat';
 
 load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',loadfile),'a_vec_N');
 a_vec = a_vec_N;    % Rename variable for this script
@@ -46,25 +46,25 @@ a_vec = a_vec/2;
 clear a_vec_N
 
 %% Plotting
-figure(1); title('Starting surface'); hold on;
+figure(1); title('Correctness of the Laplacian'); hold on;
 nplot = 1e3; h = 1 / (nplot - 1);
 rplot = linspace(0,1,nplot);
 
 surface = coef2surf(a_vec,rplot);
-plot(rplot,surface,'-k');
+plot(rplot,200*surface,'-k');
 
 surface2 = coef2surf_deriv(a_vec,rplot);
 plot(rplot,surface2,'-r');
 
 surface3 = coef2surf_laplacian(a_vec,rplot);
-plot(rplot,surface3,'-m');
+plot(rplot,surface3,'-r','LineWidth',5);
 
 surface4 = coef2surf_laplacian2(a_vec,rplot);
-plot(rplot,surface4,'-g');
+plot(rplot,surface4,'-g','LineWidth',2);
 
 surface5 = diff(surface,2)/h^2 + 1 ./ rplot(1:end-2) .* diff(surface(1:end-1))/h;
-plot(rplot(1:end-2),surface5,':k');
-ylim([-5,5])
+plot(rplot(1:end-2),surface5,':k','LineWidth',2);
+ylim([-2,4])
 legend({'Surface','Derivative','Laplacian (analytical different basis)','Laplacian (analytical same basis)','Laplacian Numerical'},...
         'Interpreter','latex',...
         'Location', 'northeast');
@@ -219,12 +219,18 @@ function radial = R_laplacian(n,m,r)
 %         R(n+1,m+1,r).*((n+m+2)*r.*(r.^2*(2*n+7)+2*m+1+(1-r.^2)))+...
 %         R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) );
 
-    c0 = 1./(r.^2.*(1-r.^2).^2);
-    radial = c0 .* (...
-        R(n  ,m  ,r).*(r.^4*(n+2)^2+2*r.^2*(m*(n+3)+n+2)+m^2)-...
-        R(n+1,m+1,r).*(n+m+2).*r.*(r.^2*(2*n+6)+2*m+2)+...
-        R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) );
-    
+%     Last Stable Version
+%     c0 = 1./(r.^2.*(1-r.^2).^2);
+%     radial = c0 .* (...
+%         R(n  ,m  ,r).*(r.^4*(n+2)^2+2*r.^2*(m*(n+3)+n+2)+m^2)-...
+%         R(n+1,m+1,r).*(n+m+2).*r.*(r.^2*(2*n+6)+2*m+2)+...
+%         R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) );
+
+
+%     c0 = 1./(r.^2.*(1-r.^2).^2*(n+2));
+%     radial = c0 .* (...
+%         R(n  ,m  ,r).*(r.^4*(n^3+6*n^2+12*n+8)+r.^2*(n*m^2+3*m^2+2*m*n^2+12*m*n+18*m-n^3-3*n^2+2*n+8)+m^3+m^2*n+5*m^2-m*n^2-2*m*n+2*m-n^2-2*n)-...
+%         R(n+2,m+2,r)*(n+m+2)*(n+m+4).*(m+r.^2+1));    
 end
 
 function radial = R_deriv_num(n,m,r)
@@ -264,8 +270,7 @@ function zernike = Zer(n,m,r,theta)
 end
 
 function a = zernikecoef(n,m,r,f)
-    N_nm = 2*(1) / (1 + eq(m,0) );
-    norm = trapz(r,r.*R(n,m,r).*R(n,m,r)*N_nm);
+    norm = 1/(2*(n+1));
     int = trapz(r,R(n,m,r).*f.*r);
     a = int/norm;
 end
