@@ -520,7 +520,7 @@ annotation('textarrow',[0.7 0.8],[0.25 0.09],'interpreter','Latex','String','$R_
 
 % Save figure
 figure_name = 'SMS_step_4a';
-filetype    = '.png';
+filetype    = '.png';   
 print(figure(7), '-dpng', strcat(folder,figure_name,filetype))
 
 %% Figure 8 whole lens

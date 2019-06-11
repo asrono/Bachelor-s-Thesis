@@ -1,9 +1,9 @@
-%% Laplacian
-% Creates ray tracer for Zernike purposes and laplacian magic window
+%% Zernike Laplacian calculator
+% -
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
-% Last updated: 21-05-2019
+% Last updated: 11-06-2019
 
 % Detailed description:
 
@@ -14,7 +14,6 @@ set(0,'defaultaxesfontsize',14);
 set(0,'defaultAxesTickLabelInterpreter','latex'); 
 
 folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Ray Tracer Zernike\';
-
 %% Initialise systema
 
 % At x = xi, we place a lens with known zernike polynomials.
@@ -45,44 +44,74 @@ a_vec = a_vec/2;
 % a_vec(25) = 0.01;
 clear a_vec_N
 
-%% Plotting
+%% Calculate laplacian
+n = 5;
+m = 1;
+A = Zernike_laplacian_Janssen(n,m);
+j1 = double2single_index(6,2);
+j2 = double2single_index(4,2);
+a_vec_test = zeros(1,j1);
+a_vec_test(j1+1) = 1;
+a_vec_test(j2+1) = 1;
+
+b_vec = Zernike_laplacian_Janssen_vec(a_vec_test);
+
+for j = 0:(length(b_vec)-1)
+   [n,m] = single2double_index(j);
+   B(j+1,1:2) = [n,m];
+   B(j+1,3)   = b_vec(j+1);
+end
+
+
+%% Calculate inverse laplacian
+n = 6;
+m = 4;
+
+A = Zernike_inverse_laplacian_Janssen(n,m);
+
+
+%%
 figure(1); title('Correctness of the Laplacian'); hold on;
 nplot = 1e3; h = 1 / (nplot - 1);
 rplot = linspace(0,1,nplot);
 
 surface = coef2surf(a_vec,rplot);
-plot(rplot,200*surface,'-k');
-
-surface2 = coef2surf_deriv(a_vec,rplot);
-plot(rplot,surface2,'-r');
-
-surface3 = coef2surf_laplacian(a_vec,rplot);
-plot(rplot,surface3,'-r','LineWidth',5);
+plot(rplot,200*surface,'-k','LineWidth',4);
 
 surface4 = coef2surf_laplacian2(a_vec,rplot);
-plot(rplot,surface4,'-g','LineWidth',2);
+plot(rplot,surface4,'-g','LineWidth',4);
 
-surface5 = diff(surface,2)/h^2 + 1 ./ rplot(1:end-2) .* diff(surface(1:end-1))/h;
-plot(rplot(1:end-2),surface5,':k','LineWidth',2);
+surface6 = coef2surf(Zernike_laplacian_Janssen_vec(a_vec),rplot);
+plot(rplot,surface4,':r','LineWidth',4);
+
+surface7 = coef2surf(Zernike_inverse_laplacian_Janssen_vec(Zernike_laplacian_Janssen_vec(a_vec)),rplot);
+plot(rplot, 200*surface7,':r','LineWidth',4);
+
 ylim([-2,4])
-legend({'Surface','Derivative','Laplacian (analytical different basis)','Laplacian (analytical same basis)','Laplacian Numerical'},...
-        'Interpreter','latex',...
-        'Location', 'northeast');
-    
+
 %% Find Intensity
 z = linspace(0,0.5,1e3);
 n = 1.6;
-I = 1 - (n - 1)*z'.*coef2surf_laplacian2(a_vec,rplot);
 
-I2 = 1./ (1 + (n - 1)*z'.*coef2surf_laplacian(a_vec,rplot));
+% calculate over different z
+I = 1 - (n - 1)*z'.*coef2surf(Zernike_laplacian_Janssen_vec(a_vec),rplot);
+I2 = 1./ (1 + (n - 1)*z'.*coef2surf(Zernike_laplacian_Janssen_vec(a_vec),rplot));  
+
+% calculate Zernike coef at certain z
+zf = xf;
+
+a_vec_intensity = Zernike_laplacian_Janssen_vec((1-n)*zf*a_vec);
+a_vec_intensity(1) = a_vec_intensity(1) + 1;
+
 figure(2);
-plot(rplot,I(end,:),'g'); hold on;
-plot(rplot,I2(end,:),'r');
-plot(rplot,I2(end,:)-I(end,:),'k');
-legend({'linear approx','non linear approx','diff'},...
+plot(rplot,I(end,:),'k','LineWidth',4); hold on;
+plot(rplot,coef2surf(a_vec_intensity,rplot),':g','LineWidth',4);
+
+plot(rplot,I2(end,:),'b','LineWidth',4); hold on;
+legend({'linear approx','linear approx Janssen','non linear approx'},...
         'Interpreter','latex',...
         'Location', 'northeast');
-
+    
 figure(3);
 surf(I);
 shading interp
@@ -90,11 +119,91 @@ shading interp
 figure(4);
 surf(I2);
 shading interp
-
-figure(1)
 %% End
 disp('Done!')
 %% Functions
+function a_vec_out = Zernike_inverse_laplacian_Janssen_vec(a_vec_in)
+    a_vec_out = zeros(1,length(a_vec_in));
+    for i = 1: length(a_vec_in)
+        if a_vec_in(i) == 0
+           continue 
+        end
+        [n,m] = single2double_index(i-1);
+        A = Zernike_inverse_laplacian_Janssen(n,m);
+        A(:,3) = a_vec_in(i) * A(:,3);
+        terms = length(A(:,3));
+        for k = 1:terms
+            j = double2single_index(A(k,1),A(k,2));
+            a_vec_out(j+1) = a_vec_out(j+1) + A(k,3);
+        end
+    end
+end
+
+function A = Zernike_inverse_laplacian_Janssen(n,m)
+    m_new = m*ones(1,3);
+    n_new = (n-2):2:(n+2);   
+    coef = [1/(4*n*(n+1)),...
+            -1/(2*n*(n+2)),...
+            1/(4*(n+1)*(n+2))];
+    
+    A(1,:) = n_new;
+    A(2,:) = m_new;
+    A(3,:) = coef;
+    
+    check = A(1,:) - abs(A(2,:));
+    logis = check>0;
+    A(3,:) = coef.*logis;
+    
+    A(isnan(A))=0;
+    
+    logis2 = ~any(A(3,:),1);
+    A(:,logis2) = [];
+    
+    A = A';
+end
+
+
+function a_vec_out = Zernike_laplacian_Janssen_vec(a_vec_in)
+    a_vec_out = zeros(1,length(a_vec_in));
+    for i = 1: length(a_vec_in)
+        if a_vec_in(i) == 0
+           continue 
+        end
+        [n,m] = single2double_index(i-1);
+        if n == m
+            continue
+        end
+        A = Zernike_laplacian_Janssen(n,m);
+        A(:,3) = a_vec_in(i) * A(:,3);
+        terms = length(A(:,3));
+        for k = 1:terms
+            j = double2single_index(A(k,1),A(k,2));
+            a_vec_out(j+1) = a_vec_out(j+1) + A(k,3);
+        end
+    end
+end
+
+function A = Zernike_laplacian_Janssen(n,m)
+    s_list = abs(m):2:(n-2);
+    terms = length(s_list);
+    m_new = m*ones(1,terms);
+    n_new = zeros(1,terms);
+    coef  = zeros(1,terms);
+
+    index = 1;
+    for s = s_list
+        n_new(index) = s;
+        coef(index)  = (s+1)*(n+s+2)*(n-s);
+        
+        index = index + 1;
+    end
+    A(1,:) = n_new;
+    A(2,:) = m_new;
+    A(3,:) = coef;
+    
+    A = A';
+end
+
 function Z = Zernike_surface(a_vec,r,theta)
     Z = zeros(numel(r),numel(theta))';
     i = 0;
@@ -220,11 +329,11 @@ function radial = R_laplacian(n,m,r)
 %         R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) );
 
 %     Last Stable Version
-%     c0 = 1./(r.^2.*(1-r.^2).^2);
-%     radial = c0 .* (...
-%         R(n  ,m  ,r).*(r.^4*(n+2)^2+2*r.^2*(m*(n+3)+n+2)+m^2)-...
-%         R(n+1,m+1,r).*(n+m+2).*r.*(r.^2*(2*n+6)+2*m+2)+...
-%         R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) );
+    c0 = 1./(r.^2.*(1-r.^2).^2);
+    radial = c0 .* (...
+        R(n  ,m  ,r).*(r.^4*(n+2)^2+2*r.^2*(m*(n+3)+n+2)+m^2)-...
+        R(n+1,m+1,r).*(n+m+2).*r.*(r.^2*(2*n+6)+2*m+2)+...
+        R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4)) );
 
 
 %     c0 = 1./(r.^2.*(1-r.^2).^2*(n+2));
@@ -232,10 +341,10 @@ function radial = R_laplacian(n,m,r)
 %         R(n  ,m  ,r).*(r.^4*(n^3+6*n^2+12*n+8)+r.^2*(n*m^2+3*m^2+2*m*n^2+12*m*n+18*m-n^3-3*n^2+2*n+8)+m^3+m^2*n+5*m^2-m*n^2-2*m*n+2*m-n^2-2*n)-...
 %         R(n+2,m+2,r)*(n+m+2)*(n+m+4).*(m+r.^2+1));    
 
-    c0 = 1./(r.^2.*(1-r.^2).^2);
-    radial = c0 .* (...
-        R(n  ,m  ,r).*(r.^4*(n+2)^2+2*r.^2*(m*(n+3)+n+2)+m^2-(n-m)/(2*(n+2))*(n+m+2)*(r.^2*(2*n+6)+2*m_1))+...
-        R(n+2,m+2,r)*(n+m+4)/(2*(n+2))*(n+m+2)*(r.^2*(2*n+6)+2*m_1)); 
+%     c0 = 1./(r.^2.*(1-r.^2).^2);
+%     radial = c0 .* (...
+%         R(n  ,m  ,r).*(r.^4*(n+2)^2+2*r.^2*(m*(n+3)+n+2)+m^2-(n-m)/(2*(n+2))*(n+m+2)*(r.^2*(2*n+6)+2*m+1))+...
+%         R(n+2,m+2,r).*(r.^2*(n+m+2)*(n+m+4) - (n+m+4)/(2*(n+2))*(n+m+2)*(r.^2*(2*n+6)+2*m+1))); 
 end
 
 function radial = R_deriv_num(n,m,r)
