@@ -29,7 +29,7 @@ lens_middle = lens(1) + ( lens(2)-lens(1) );
 
 rplot = linspace(0,1,1e3);
 % intensity = 0.01*(2 +cos(rplot*2*pi));
-intensity = ones(1,1e3)+0.2*cos(rplot*4*pi);
+intensity = ones(1,1e3)+0.2*cos(rplot*6*pi);
 
 %% Find zernike coef
 m = 0;
@@ -63,7 +63,6 @@ y_plot = linspace(lens(1),lens(2),number_of_rays);
 x_lens = coef2surf(a_vec_lens,y_plot);
 x_lens_deriv = coef2surf_deriv(a_vec_lens,y_plot);
 
-rays_start = linspace(lens(2),lens(1),number_of_rays)';
 %% Analytical differentiator
 % calculate normal vectors at interface
 dx = flipud(-coef2surf_deriv(a_vec_lens,y_plot)');
