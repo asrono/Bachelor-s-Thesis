@@ -29,8 +29,8 @@ lens_middle = lens(1) + ( lens(2)-lens(1) );
 
 rplot = linspace(0,1,1e3);
 % intensity = 0.01*(2 +cos(rplot*2*pi));
-% intensity = ones(1,1e3)+0.2*cos(rplot*6*pi);
-intensity = 0.5+0.5*normpdf(rplot,0,0.2)*sqrt(2*pi*0.2^2);
+intensity = ones(1,1e3)+0.2*cos(rplot*6*pi);
+% intensity = 0.5+0.5*normpdf(rplot,0,0.2)*sqrt(2*pi*0.2^2);
 
 %% Find zernike coef
 m = 0;

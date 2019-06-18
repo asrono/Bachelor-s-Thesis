@@ -1,9 +1,9 @@
-%% Laplacian
-% Creates ray tracer for Zernike purposes and laplacian magic window
+%% Results Zernike Fit
+% Plots figures to discuss goodness of fit
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
-% Last updated: 21-05-2019
+% Last updated: 18-06-2019
 
 % Detailed description:
 
