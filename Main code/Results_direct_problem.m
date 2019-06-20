@@ -25,27 +25,28 @@ create_lens = true;
 if ~xor(input_lens == true, create_lens == true)
     error('Set either Input_lens or Create_lens to true')
 end
+
+n_fit = 1e3;
+r = linspace(0,1,n_fit);
 %% Input lens
 if input_lens == true
 % load coefficients for a lens
 loadfile = 'a_vec_Berry.mat';
 load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',loadfile),'a_vec_N');
 a_vec = a_vec_N;    % Rename variable for this script
-a_vec(1) = xi;       % Set height of lens to optical start
-a_vec = a_vec/2;
+a_vec(1) = 0;       % Set height of lens to optical start
+a_vec = a_vec/50;
 clear a_vec_N
 end
 
 %% Create lens
 if create_lens == true
-n_fit = 1e3;
-r = linspace(0,1,n_fit);
-h = 1/40*cos(3*pi*r);
-% h = 1/20*normpdf(r,0,0.3);
+h = 1/200*normpdf(r,0,0.3);
+% h = 1/2000*cos(4*pi*r);
 
 % Find zernike coef
 m = 0;
-n_max = 10;
+n_max = 20;
 for n = 0:2:n_max
     a_vec(double2single_index(n,m)+1) = zernikecoef(n,m,r,h);
 end
@@ -57,7 +58,7 @@ plot(r,coef2surf(a_vec,r),'-r','linewidth',1.5)
 end
 
 %% Set up for intensity
-zf = 0.1; % Final z value
+zf = 5; % Final z value
 z = linspace(0,zf,1e3);
 n_ref = 1.6; % index of refraction
 
@@ -70,33 +71,56 @@ I_lin = [fliplr(I_lin) I_lin];
 I_nonlin = 1./ (1 + (n_ref - 1)*z'.*coef2surf(Zernike_laplacian_Janssen_vec(a_vec),r));
 I_nonlin = [fliplr(I_nonlin) I_nonlin];
 
+% update r
+r2 = [fliplr(-r) r];
 %% Plot intensity
 figure();
 subplot(2,2,1)
-surf(I_lin);
+surf(r2,z,I_lin);
 shading interp
 view(-35,25);
+xlabel('$r$');
+ylabel('$z$');
+zlabel('$I$');
+title('Linear approximation')
+zlim([0.5,2]);
 
 subplot(2,2,2)
-plot(I_lin(end,:)); hold on;
-plot(I_nonlin(end,:))
-grid on
-
+plot(r2,I_lin(end,:),'-k'); hold on;
+plot(r2,I_nonlin(end,:),'--k')
+xlabel('$r$');
+ylabel('$I$');
+grid on;
+title('Intensity at $z = 5$')
+legend({'Linear','Non-linear'},...
+        'Interpreter','latex',...
+        'Location', 'northwest');  
 subplot(2,2,3)
-surf(I_nonlin);
+surf(r2,z,I_nonlin);
 shading interp
 view(-35,25);
+xlabel('$r$');
+ylabel('$z$');
+zlabel('$I$');
+title('Non-linear approximation')
+zlim([0.5,2])
 
 subplot(2,2,4)
-plot(abs(I_nonlin(end,:)-I_lin(end,:)));
-grid on
+plot(r2,abs(I_nonlin(end,:)-I_lin(end,:)),'-k');
+xlabel('$r$');
+ylabel('$I$');
+grid on;
+title('Diff. intensity at $z = 5$')
+
+% figure();
+% plot(z,sum(I_lin,2)/2e3)
 %% Initialise system
 
 % At x = xi, we place a lens with known zernike polynomials.
 % At x = xf, we place a screen and observe intensity.
 
 xi = 0; % arbitrary units
-xf = 1; % arbitrary units
+xf = zf; % arbitrary units
 
 lens = [-1,1]; % position of bottom and top of lens
 lens_middle = lens(1) + ( lens(2)-lens(1) );
@@ -104,9 +128,9 @@ lens_middle = lens(1) + ( lens(2)-lens(1) );
 
 %% Settings
 % for plotting use 2e2
-number_of_rays = 2e4;
+number_of_rays = 1e5;
 
-Der_ana = true; % true for analytical derivative calculation, false for numerical
+Der_ana = true ; % true for analytical derivative calculation, false for numerical
 plot_hist_3D = true; % plotting the 3D histogram (computationally heavy)
 
 %% Ray tracer
@@ -117,24 +141,24 @@ x_lens_deriv = coef2surf_deriv(a_vec,y_plot);
 
 rays_start = linspace(lens(2),lens(1),number_of_rays)';
 
-%% Numerical differentiator
-if Der_ana == false
-% calculate normal vectors at interface
-dx = zeros(number_of_rays,1);
-dx(1) =   x_lens(2)     - x_lens(1);
-dx(end) = x_lens(end) - x_lens(end-1);
-for i = 2: (number_of_rays-1)
-   dx(i) = x_lens(i+1)-x_lens(i-1);
-end
-dy = ones(number_of_rays,1) * 2 *( lens(1) - lens(2) ) / (number_of_rays - 1);
-dy(1) = dy(1)/2;
-dy(end) = dy(end)/2;
-dy = -dy;
-end
+% %% Numerical differentiator
+% if Der_ana == false
+% % calculate normal vectors at interface
+% dx = zeros(number_of_rays,1);
+% dx(1) =   x_lens(2)     - x_lens(1);
+% dx(end) = x_lens(end) - x_lens(end-1);
+% for i = 2: (number_of_rays-1)
+%    dx(i) = x_lens(i+1)-x_lens(i-1);
+% end
+% dy = ones(number_of_rays,1) * 2 *( lens(1) - lens(2) ) / (number_of_rays - 1);
+% dy(1) = dy(1)/2;
+% dy(end) = dy(end)/2;
+% dy = -dy;
+% end
 %% Analytical differentiator
 if Der_ana == true
 % calculate normal vectors at interface
-dx = flipud(-coef2surf_deriv(a_vec,y_plot)');
+dx = flipud(-coef2surf_deriv(-a_vec,y_plot)');
 dy = ones(number_of_rays,1);
 end
 
@@ -157,43 +181,43 @@ b = y_plot - a.*x_lens;
 
 intensity = a.*xf + b;
 %%
-% %% plotting figure 1
-% figure(1); title('Optical system'); hold on; movegui('center')
-% 
-% if number_of_rays < 2e2+1
-% % Plot rays
-% quiv2 = quiver(x_lens,y_plot,v_r(1,:),v_r(2,:),600);
-% quiv2.Color = 'red';
-% quiv2.LineWidth = 0.01;
-% quiv2.MaxHeadSize = 0;
-% 
-% % Plot incoming rays
-% quiv2 = quiver(x_lens,y_plot,-ones(1,number_of_rays),zeros(1,number_of_rays),60);
-% quiv2.Color = 'red';
-% quiv2.LineWidth = 0.01;
-% quiv2.MaxHeadSize = 0;
-% end
-% % Plot optical axis
-% plot([xi-2,xf],lens_middle*ones(1,2),'-k')
-% 
-% % % Plot lens % placeholder
-% % plot(xi*ones(1,2),lens,':k')
-% 
-% % Plot receiver plane
-% plot(xf*ones(1,2),lens,'-k','LineWidth',10)
-% 
-% % Plot boundaries
-% plot([xi,xf],lens(1)*ones(1,2),'--k')
-% plot([xi,xf],lens(2)*ones(1,2),'--k')
-% 
-% % Plot lens (real lens)
-% plot(x_lens,y_plot,'-k');
-% 
-% xlabel('$x$')
-% ylabel('$y$')
-% xlim([xi-0.1,xf+0.5]);
-% ylim([lens(1)-0.1,lens(2)+0.1]);
-% % axis equal
+%% plotting figure 1
+figure(); title('Optical system'); hold on; movegui('center')
+
+if number_of_rays < 2e2+1
+% Plot rays
+quiv2 = quiver(x_lens,y_plot,v_r(1,:),v_r(2,:),600);
+quiv2.Color = 'red';
+quiv2.LineWidth = 0.01;
+quiv2.MaxHeadSize = 0;
+
+% Plot incoming rays
+quiv2 = quiver(x_lens,y_plot,-ones(1,number_of_rays),zeros(1,number_of_rays),60);
+quiv2.Color = 'red';
+quiv2.LineWidth = 0.01;
+quiv2.MaxHeadSize = 0;
+end
+% Plot optical axis
+plot([xi-2,xf],lens_middle*ones(1,2),'-k')
+
+% % Plot lens % placeholder
+% plot(xi*ones(1,2),lens,':k')
+
+% Plot receiver plane
+plot(xf*ones(1,2),lens,'-k','LineWidth',10)
+
+% Plot boundaries
+plot([xi,xf],lens(1)*ones(1,2),'--k')
+plot([xi,xf],lens(2)*ones(1,2),'--k')
+
+% Plot lens (real lens)
+plot(x_lens,y_plot,'-k');
+
+xlabel('$x$')
+ylabel('$y$')
+xlim([xi-0.1,xf]);
+ylim([lens(1)-0.1,lens(2)+0.1]);
+% axis equal
 % 
 % % Save figure
 % figure_name = 'Ray_tracer1';
@@ -222,19 +246,19 @@ intensity = a.*xf + b;
 % grid minor
 % axis equal
 % 
-% %% Plotting figure 3
-% figure(3); title(strcat('Intensity at $x = x_f = ',string(xf),'$.')); hold on; movegui('west')
-% 
-% h1 = histogram(intensity,linspace(lens(1),lens(2),100));
-% xlim([lens(1),lens(2)])
-% ylabel('Counts (\#rays)')
-% xlabel('$x$')
-% % Save figure
-% figure_name = 'ray_tracer3';
-% filetype    = '.png';
-% print(figure(3), '-dpng', strcat(folder,figure_name,filetype))
-% 
-% figure(5);
+%% Plotting figure 3
+figure(); title(strcat('Intensity at $z = ',string(zf),'$.')); hold on; movegui('west')
+
+h1 = histogram(intensity,linspace(lens(1),lens(2),500),'EdgeColor','none');
+xlim([lens(1),lens(2)])
+ylabel('Counts / $I$')
+xlabel('$r$')
+% Save figure
+figure_name = 'ray_tracer3';
+filetype    = '.png';
+print(figure(3), '-dpng', strcat(folder,figure_name,filetype))
+
+% figure();
 % midpoints = conv(h1.BinEdges, [0.5 0.5], 'valid');
 % counts = h1.BinCounts;
 % plot(midpoints,counts,'or'); hold on 
@@ -249,52 +273,52 @@ intensity = a.*xf + b;
 % [midpoints3, counts3] = ...
 %     interpol(counts2, midpoints2, 0,1,n_interpolation);
 % plot(midpoints3,counts3,'.g')
-% for n = 0:2:20
+% for n = 0:2:30
 %     a_vec_2(double2single_index(n,m)+1) = zernikecoef(n,m,midpoints2,counts2); %#ok<SAGROW>
 % end
 % plot(midpoints3,coef2surf(a_vec_2,midpoints3),'-r')
 % figure(3);
-% 
-% 
-% %% Plotting figure 4
-% if plot_hist_3D == true
-% figure(4);
-% number_x = 5e2;
-% x = linspace(0,xf,number_x)';
-% t = a.*x + b;
-% 
-% binNo = 3e2;                     % number of bins for the histogram
-% bins  = zeros(size(t,1),binNo); % preallocation 
-% % 'FOR' loop to get the histogram values for each photo
-% for i=1:size(t,1)
-% h = histogram(t(i,:),linspace(lens(1),lens(2),binNo+1));
-% bins(i,:) = h.Values;
-% end
-% 
-% b = bar3(bins);
-% 
-% for i = 1:size(bins,2)
-%     cdata = get(b(i),'cdata');
-%     k = 1;
-%     for j = 0:6:(6*size(bins,1)-6)
-%         cdata(j+1:j+6,:) = bins(k,i);
-%         k = k+1;
-%     end
-%     set(b(i),'cdata',cdata);
-% end
-% for k = 1:length(b)
-%     zdata = b(k).ZData;
-%     b(k).CData = zdata;
-%     b(k).FaceColor = 'interp';
-% end
-% colormap jet
-% shading interp
-% view(180,90)
-% axis tight
-% xlabel('$x$')
-% ylabel('$y$')
-% zlabel('Counts')
-% end
+
+
+%% Plotting figure 4
+if plot_hist_3D == true
+figure();
+number_x = 5e2;
+x = linspace(0,xf,number_x)';
+t = a.*x + b;
+
+binNo = 3e2;                     % number of bins for the histogram
+bins  = zeros(size(t,1),binNo); % preallocation 
+% 'FOR' loop to get the histogram values for each photo
+for i=1:size(t,1)
+h = histogram(t(i,:),linspace(lens(1),lens(2),binNo+1));
+bins(i,:) = h.Values;
+end
+
+b = bar3(bins);
+
+for i = 1:size(bins,2)
+    cdata = get(b(i),'cdata');
+    k = 1;
+    for j = 0:6:(6*size(bins,1)-6)
+        cdata(j+1:j+6,:) = bins(k,i);
+        k = k+1;
+    end
+    set(b(i),'cdata',cdata);
+end
+for k = 1:length(b)
+    zdata = b(k).ZData;
+    b(k).CData = zdata;
+    b(k).FaceColor = 'interp';
+end
+colormap jet
+shading interp
+view(180,90)
+axis tight
+xlabel('$r$')
+ylabel('$z$')
+zlabel('Counts')
+end
 
 %% End
 disp('Done!')
