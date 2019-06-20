@@ -8,7 +8,7 @@
 % Detailed description:
 
 %% Settings
-close all; clear all;
+% close all; clear all;
 set(0,'defaulttextinterpreter','latex');
 set(0,'defaultaxesfontsize',14);
 set(0,'defaultAxesTickLabelInterpreter','latex'); 
@@ -21,7 +21,7 @@ folder = 'C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Figures\Ray Trace
 % At x = xf, we place a screen and observe intensity.
 
 xi = 0; % arbitrary units
-xf = 0.5; % arbitrary units
+xf = 1; % arbitrary units
 
 lens = [-1,1]; % position of bottom and top of lens
 lens_middle = lens(1) + ( lens(2)-lens(1) );
@@ -29,18 +29,18 @@ lens_middle = lens(1) + ( lens(2)-lens(1) );
 
 %% Settings
 % for plotting use 2e2
-number_of_rays = 1e4;
+number_of_rays = 2e4;
 
 Der_ana = true; % true for analytical derivative calculation, false for numerical
 plot_hist_3D = true; % plotting the 3D histogram (computationally heavy)
 
 %% Input
 % load coefficients for a lens
-loadfile = 'a_vec_Berry.mat';
-load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',loadfile),'a_vec_N');
-a_vec = a_vec_N;    % Rename variable for this script
-a_vec(1) = xi;       % Set height of lens to optical start
-a_vec = a_vec/2;
+% loadfile = 'a_vec_Berry.mat';
+% load(strcat('C:\Users\Buijssen\Documents\GitHub\Bachelor-s-Thesis\Data\',loadfile),'a_vec_N');
+% a_vec = a_vec_N;    % Rename variable for this script
+% a_vec(1) = xi;       % Set height of lens to optical start
+% a_vec = a_vec/2;
 % a_vec = zeros(1,25);
 % a_vec(12) = 0.01;
 % a_vec(13) = 0.02;
@@ -50,7 +50,7 @@ clear a_vec_N
 %% Ray tracer
 % for plotting
 y_plot = linspace(lens(1),lens(2),number_of_rays);
-x_lens = coef2surf(a_vec,y_plot);
+x_lens = coef2surf(-a_vec,y_plot);
 x_lens_deriv = coef2surf_deriv(a_vec,y_plot);
 
 rays_start = linspace(lens(2),lens(1),number_of_rays)';
