@@ -53,7 +53,7 @@ rplot = linspace(0,1,nplot);
 rplot2 = linspace(0.001,1,nplot2);
 
 surface = coef2surf(a_vec,rplot);
-surface_num = diff(surface,2)/h^2 + 1 ./ rplot(1:fend-2) .* diff(surface(1:end-1))/h;
+surface_num = diff(surface,2)/h^2 + 1 ./ rplot(1:end-2) .* diff(surface(1:end-1))/h;
 surface_sum = coef2surf_laplacian(a_vec,rplot2);
 surface_ana = coef2surf_laplacian2(a_vec,rplot2);
 surface_jan = coef2surf(Zernike_laplacian_Janssen_vec(a_vec),rplot2);

@@ -1,9 +1,9 @@
 %% Results Direct Problem
-% Creates ray tracer for Zernike purposes and laplacian magic window
+% Solves the direct problem via Laplacian magic window and ray tracing.
 
 % Dependencies: None
 % Author:       Niels Buijssen 4561473
-% Last updated: 19-06-2019
+% Last updated: 21-06-2019
 
 % Detailed description:
 
@@ -41,8 +41,8 @@ end
 
 %% Create lens
 if create_lens == true
-h = 1/200*normpdf(r,0,0.3);
-% h = 1/2000*cos(4*pi*r);
+% h = 1/200*normpdf(r,0,0.3);
+h = 1/2000*cos(4*pi*r);
 
 % Find zernike coef
 m = 0;
@@ -58,7 +58,7 @@ plot(r,coef2surf(a_vec,r),'-r','linewidth',1.5)
 end
 
 %% Set up for intensity
-zf = 5; % Final z value
+zf = 30; % Final z value
 z = linspace(0,zf,1e3);
 n_ref = 1.6; % index of refraction
 
